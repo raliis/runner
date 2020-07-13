@@ -4,15 +4,15 @@
 
 USAGE:
 ===============
-# add new entry
+### add new entry
 * runner add/a [distance] [duration] [avg heart rate] [cals]
 
-# remove entry
+### remove entry
 * runner remove/rm/r [id]
 
-# edit entry
+### edit entry
 * runner edit/e [id]
 
-# set distance goal
+### set distance goal
 * runner set distance/dist/d [distance]
 
