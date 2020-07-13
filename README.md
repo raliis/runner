@@ -2,7 +2,7 @@
 
 * simple app to keep track of runs
 
-USAGE:
+USAGE
 ===============
 ### add new entry
 * runner add/a [distance] [duration] [avg heart rate] [cals]
