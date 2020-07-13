@@ -4,8 +4,15 @@
 
 USAGE:
 ===============
-* runner add/a [distance] [duration] [avg heart rate] [cals] -- adds new line into data file
-* runner remove/rm/r [id] -- removes line from data file
-* runner edit/e [id] -- launches vim propmt with selected line to edit
+# add new entry
+* runner add/a [distance] [duration] [avg heart rate] [cals]
+
+# remove entry
+* runner remove/rm/r [id]
+
+# edit entry
+* runner edit/e [id]
+
+# set distance goal
 * runner set distance/dist/d [distance]
 
