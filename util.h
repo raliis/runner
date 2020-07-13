@@ -1,3 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-void print_count(int count);
+int select_mode(char*);
+void print_count(int);
+
