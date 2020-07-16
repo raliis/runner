@@ -1,5 +1,5 @@
 runner: runner.o util.o
-	gcc runner.o util.o -o runner
+	gcc runner.o util.o -o runner -lusb-1.0
 
 runner.o: runner.c
 	gcc -c runner.c

@@ -1,45 +1,77 @@
 #include "util.h"
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-		int mode = select_mode(argv[1]);
-		switch (mode)
-		{
-				case 0:
-						if (argv[2] && argv[3] && argv[4] && argv[5])
-						{
-								printf ("Adding new(id: 56): %.2f(km), %s, %d, %d(kcal)\n", atof(argv[2]), argv[3], atoi(argv[4]), atoi(argv[5]));
-						}
-						else
-						{
-								printf ("Missing some arguments, cant add entry\n");
-						}
-						break;
-				case 1:
-						if (argv[2])
-						{
-								printf ("Removing entry with id %d\n", atoi(argv[2]));
-						}
-						else
-						{
-								printf ("Missing id, cant remove entry\n");
-						}
-						break;
-				case 2:
-						if (argv[2])
-						{
-								printf ("Launching editor to change entry\n");
-						}
-						else
-						{
-								printf ("Missing id, cant edit entry\n");
-						}
-						break;
-				default:
-						printf ("Usage: runner add [dist(float)] [duration(str)], [heart rate(int)], [cals(int)]\n");
-						break;
-		}
+	// Make sure user gave bus and port number
+	if (argc < 3)
+		error("Too few arguments\nUsage: runner bus port\n", ERROR);
+
+	// Get bus and port from user
+	int bus = atoi(argv[1]);
+	int port = atoi(argv[2]);
+
+	// Initializing the library
+	const struct libusb_version* ver = libusb_get_version();
+	int init_result = libusb_init(NULL);
+
+	// Greet the user
+	printf ("Runner v0.1, using libusb %d.%d.%d\n", ver->major, ver->minor, ver->micro);
+
+	// Discovery of devices
+	libusb_device** list;			// var for holding list of available devices
+	libusb_device* found = NULL; 	// var for holding found device
+	
+	// Get list of devices into list and store count
+	ssize_t count = libusb_get_device_list(NULL, &list);
+	if (count < 0)
+		error("Count of found devices is less than 0", ERROR);
+
+	// Find specific device in found devices
+	int i = 0;
+	printf ("List length is: %d\n", count);
+	for (i = 0; i < count; i++)
+	{
+		libusb_device* device = list[i];
 		
-		return 0;
+		// For debugging - prints all devices
+		// printf("Device %d: bus %d, port %d\n", i, libusb_get_bus_number(device), libusb_get_port_number(device));
+
+		if (is_interesting(device, bus, port))
+		{
+			found = device;
+			printf("Found interesting device in position %d\n", i);
+			break;
+		}
+	}
+
+	// Open device for I/O
+	if (found)
+	{
+		libusb_device_handle* handle;
+		
+		if (libusb_open(found, &handle)) // libusb_open returns 0 on success
+		{
+			// 
+			// TODO: add better error logging, taking advantage of return codes
+			//
+			error("Could not open device\n", ERROR);
+		}
+		else // Device successfully opened
+		{
+			
+			printf("Device opened successfully!\n");
+
+			//
+			// THIS IS WHERE THE IMPORTANT PART GOES
+			//
+
+			libusb_close(handle);
+		}
+	
+	}
+	
+	// Free device list when done
+	libusb_free_device_list(list, 1);
+	return 0;
 }
 

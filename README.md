@@ -1,18 +1,11 @@
 # RUNNER
+* Tool to read data from a Polar watch(rc3gps) via USB and give user some useful information.
 
-* simple app to keep track of runs
+# DEPENDENCIES
+* libusb (1.0.23)
 
-USAGE
-===============
-### add new entry
-* runner add/a [distance] [duration] [avg heart rate] [cals]
-
-### remove entry
-* runner remove/rm/r [id]
-
-### edit entry
-* runner edit/e [id]
-
-### set distance goal
-* runner set distance/dist/d [distance]
+# USAGE 
+### Read from device 
+#####(needs sudo to open up device)
+* sudo runner [bus] [port]
 
