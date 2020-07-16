@@ -6,6 +6,6 @@
 
 # USAGE 
 ### Read from device 
-####(needs sudo to open up device)
+##### !sudo is necessary to open up device!
 * sudo runner [bus] [port]
 
