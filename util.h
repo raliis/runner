@@ -17,5 +17,7 @@ void error(char*, int);
 // determine if this is the device were looking for
 int is_interesting(libusb_device*, int, int);
 
+// transfer callback
+void transfer_callback(struct libusb_transfer*);
 #endif
 

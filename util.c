@@ -1,5 +1,6 @@
 #include "util.h"
 
+
 int select_mode(char* mode)
 {
 	if (!(strcmp (mode, "add") && strcmp (mode, "a")))
@@ -38,3 +39,8 @@ int is_interesting(libusb_device* dev, int bus, int port)
 	return ((libusb_get_bus_number(dev) == bus) && libusb_get_port_number(dev) == port); 
 }
 
+void transfer_callback(struct libusb_transfer* transfer)
+{
+	printf ("The status of transfer is: %s\n", transfer->status);
+	printf ("The data received is: %s\n", transfer->buffer);
+}
