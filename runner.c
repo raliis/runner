@@ -73,22 +73,49 @@ int main(int argc, char** argv)
 		{
 			
 			printf("Device opened successfully!\n");
+			
+			int ahah;
 
-			// Allocate a transfer, with argument 0 for interrupt endpoints
-			struct libusb_transfer* transfer = libusb_alloc_transfer(0);
+			if (!libusb_get_configuration(handle, &ahah))
+			{
+				printf("setting kernel autorelease: \n");
+				int autorelease_error = libusb_set_auto_detach_kernel_driver(handle, 1);
+				printf("Autorelease of interface 0: %d, %s \n", autorelease_error, libusb_strerror(autorelease_error));
 
-			// Create buffer for data
-			char* buffer = (char*) malloc(500);
-			void (* callback) (struct libusb_transfer*);
-			callback = &transfer_callback;
+			//	printf("releasing interface: \n");
+			//	int release_error = libusb_release_interface(handle, 0x00);
+			//	printf("release of interface 0: %d, %s \n", release_error, libusb_strerror(release_error));
+				printf("claiming interface: \n");
+				int claim_error = libusb_claim_interface(handle, 0);
+				printf("claim of interface 0: %d, %s \n", claim_error, libusb_strerror(claim_error));
 
-			// Fill allocated transfer
-			libusb_fill_interrupt_transfer(transfer, handle, 0x00, buffer, sizeof(buffer), callback, NULL, 0);
+				if (!claim_error)
+				{
+					printf("getting config: \n");
+					int current_config;
+					int config_error = libusb_get_configuration(handle, &current_config);
+					printf("current config is: %d\n\terror: %d, %s\n", current_config, config_error, libusb_strerror(config_error));
 
-			// Send transfer
-			int transfer_error = libusb_submit_transfer(transfer);
-			printf("Submitted transfer, returned: %s\n", libusb_strerror(transfer_error));
+					// Allocate a transfer, with argument 0 for interrupt endpoints
+					struct libusb_transfer* transfer = libusb_alloc_transfer(0);
 
+					// Create buffer for data
+					char* buffer = (char*) malloc(500);
+					void (* callback) (struct libusb_transfer*);
+					callback = &transfer_callback;
+
+					// Fill allocated transfer
+					//
+					// STILL A LITTLE BROKEN, DOESNT CALL CALLBACK
+					//
+					libusb_fill_interrupt_transfer(transfer, handle, 0x81, buffer, sizeof(buffer), callback, NULL, 500);
+
+					// Send transfer
+					int transfer_error = libusb_submit_transfer(transfer);
+					printf("Submitted transfer, returned: %s\n", libusb_strerror(transfer_error));
+				}
+			}
+			
 			/*while(1)
 			{
 				sleep(1);
