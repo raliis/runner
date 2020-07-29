@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 	int i = 0;
 	printf ("List length is: %d\n", count);
 
-	// List all devices before checking idf bus and port are selected
+	// List all devices before checking if bus and port are selected
 	for (i = 0; i < count; i++)
 	{
 		libusb_device* device = list[i];
@@ -95,6 +95,8 @@ int main(int argc, char** argv)
 					int current_config;
 					int config_error = libusb_get_configuration(handle, &current_config);
 					printf("current config is: %d\n\terror: %d, %s\n", current_config, config_error, libusb_strerror(config_error));
+					
+					printf("kernel driver active: %d\n", libusb_kernel_driver_active(handle, 0));
 
 					// Allocate a transfer, with argument 0 for interrupt endpoints
 					struct libusb_transfer* transfer = libusb_alloc_transfer(0);
@@ -108,7 +110,7 @@ int main(int argc, char** argv)
 					//
 					// STILL A LITTLE BROKEN, DOESNT CALL CALLBACK
 					//
-					libusb_fill_interrupt_transfer(transfer, handle, 0x81, buffer, sizeof(buffer), callback, NULL, 500);
+					libusb_fill_interrupt_transfer(transfer, handle, 0x80, buffer, sizeof(buffer), callback, NULL, 500);
 
 					// Send transfer
 					int transfer_error = libusb_submit_transfer(transfer);
@@ -116,12 +118,16 @@ int main(int argc, char** argv)
 				}
 			}
 			
-			/*while(1)
+			int k = 0;
+			while(k < 10)
 			{
 				sleep(1);
-			}*/
-
-			libusb_close(handle);
+				k++;
+			}
+			
+			printf("releasing interface: \n");
+			int release_error = libusb_release_interface(handle, 0x00);
+			printf("release of interface 0: %d, %s \n", release_error, libusb_strerror(release_error)); 			libusb_close(handle);
 		}
 	
 	}
