@@ -1,4 +1,5 @@
-# Doc
+# Doc 
+Here i will be adding notes and other useful(imo) information about the project, libusb and usb itself.
 
 ## Flow
 1. get list of available devices
