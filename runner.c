@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 					int config_error = libusb_get_configuration(handle, &current_config);
 					printf("current config is: %d\n\terror: %d, %s\n", current_config, config_error, libusb_strerror(config_error));
 					
-					printf("kernel driver active: %d\n", libusb_kernel_driver_active(handle, 0));
+					//printf("kernel driver active: %d\n", libusb_kernel_driver_active(handle, 0));
 
 					// Allocate a transfer, with argument 0 for interrupt endpoints
 					struct libusb_transfer* transfer = libusb_alloc_transfer(0);
