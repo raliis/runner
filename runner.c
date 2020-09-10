@@ -102,19 +102,32 @@ int main(int argc, char** argv)
 					struct libusb_transfer* transfer = libusb_alloc_transfer(0);
 
 					// Create buffer for data
-					char* buffer = (char*) malloc(500);
+					//char* buffer = (char*) libusb_dev_mem_alloc(handle, 500);
+					char* buffer = (char*) libusb_dev_mem_alloc(handle, 36);
 					void (* callback) (struct libusb_transfer*);
 					callback = &transfer_callback;
 
-					// Fill allocated transfer
+					// Fill allocated interrupt transfer
 					//
 					// STILL A LITTLE BROKEN, DOESNT CALL CALLBACK
-					//
-					libusb_fill_interrupt_transfer(transfer, handle, 0x80, buffer, sizeof(buffer), callback, NULL, 500);
+					// 
+					//libusb_fill_interrupt_transfer(transfer, handle, 0x00, buffer, sizeof(buffer), callback, NULL, 500);
+					// WILL TRY TO SEND A CONTROL PACKET TO SEE IF THAT RESPONDS
+					// this hexc data is from wireshark data, host <--> 1.3.0
+					libusb_fill_control_setup(buffer, 0x00, LIBUSB_REQUEST_SET_CONFIGURATION, 1, 0, 0);
+					libusb_fill_control_transfer(transfer, handle, buffer, callback, transfer, 50);
 
-					// Send transfer
 					int transfer_error = libusb_submit_transfer(transfer);
 					printf("Submitted transfer, returned: %s\n", libusb_strerror(transfer_error));
+
+
+					//libusb_fill_interrupt_transfer(transfer, handle, 0x00, buffer, sizeof(buffer), callback, NULL, 500);
+
+					// Send transfer
+					//transfer_error = libusb_submit_transfer(transfer);
+					//printf("Submitted transfer, returned: %s\n", libusb_strerror(transfer_error));
+
+					//callback(transfer);
 				}
 			}
 			

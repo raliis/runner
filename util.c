@@ -41,6 +41,7 @@ int is_interesting(libusb_device* dev, int bus, int port)
 
 void transfer_callback(struct libusb_transfer* transfer)
 {
+	printf ("We are now in the callback\n");
 	printf ("The status of transfer is: %s\n", transfer->status);
 	printf ("The data received is: %s\n", transfer->buffer);
 }
