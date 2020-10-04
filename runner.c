@@ -6,7 +6,6 @@
 
 int main(int argc, char** argv)
 {
-	
 	// Initializing the library
 	const struct libusb_version* ver = libusb_get_version();
 	int init_result = libusb_init(NULL);
@@ -33,7 +32,7 @@ int main(int argc, char** argv)
 		libusb_device* device = list[i];
 		
 		// For debugging - prints all devices
-		printf("Device %d(%d): bus %d, port %d\n", i, libusb_get_device_address(device), libusb_get_bus_number(device), libusb_get_port_number(device));
+		printf("\tDevice %d(%d): bus %d, port %d\n", i, libusb_get_device_address(device), libusb_get_bus_number(device), libusb_get_port_number(device));
 	}
 
 	// Make sure user gave bus and port number
@@ -71,30 +70,25 @@ int main(int argc, char** argv)
 		}
 		else // Device successfully opened
 		{
-			
 			printf("Device opened successfully!\n");
 			
 			int ahah;
-
 			if (!libusb_get_configuration(handle, &ahah))
 			{
 				printf("setting kernel autorelease: \n");
 				int autorelease_error = libusb_set_auto_detach_kernel_driver(handle, 1);
-				printf("Autorelease of interface 0: %d, %s \n", autorelease_error, libusb_strerror(autorelease_error));
+				printf("\tAutorelease of interface 0: %d, %s \n", autorelease_error, libusb_strerror(autorelease_error));
 
-			//	printf("releasing interface: \n");
-			//	int release_error = libusb_release_interface(handle, 0x00);
-			//	printf("release of interface 0: %d, %s \n", release_error, libusb_strerror(release_error));
 				printf("claiming interface: \n");
 				int claim_error = libusb_claim_interface(handle, 0);
-				printf("claim of interface 0: %d, %s \n", claim_error, libusb_strerror(claim_error));
+				printf("\tclaim of interface 0: %d, %s \n", claim_error, libusb_strerror(claim_error));
 
 				if (!claim_error)
 				{
 					printf("getting config: \n");
 					int current_config;
 					int config_error = libusb_get_configuration(handle, &current_config);
-					printf("current config is: %d\n\terror: %d, %s\n", current_config, config_error, libusb_strerror(config_error));
+					printf("\tcurrent config is: %d\n\terror: %d, %s\n", current_config, config_error, libusb_strerror(config_error));
 					
 					//printf("kernel driver active: %d\n", libusb_kernel_driver_active(handle, 0));
 
@@ -107,41 +101,40 @@ int main(int argc, char** argv)
 					void (* callback) (struct libusb_transfer*);
 					callback = &transfer_callback;
 
-					// WILL TRY TO SEND A CONTROL PACKET TO SEE IF THAT RESPONDS
-					// this hexc data is from wireshark data, host <--> 1.3.0
-					//libusb_fill_control_setup(buffer, 0x80, LIBUSB_REQUEST_SET_CONFIGURATION, 1, 0, 0);
+					//SENDING A CONTROL PACKET TO SEE IF THAT RESPONDS
 					libusb_fill_control_setup(buffer, 
-						LIBUSB_RECIPIENT_DEVICE | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_ENDPOINT_OUT, 
-						LIBUSB_REQUEST_GET_DESCRIPTOR, 0, 0, 0);
+						LIBUSB_RECIPIENT_DEVICE | LIBUSB_REQUEST_TYPE_STANDARD | LIBUSB_ENDPOINT_OUT, 
+						LIBUSB_REQUEST_GET_DESCRIPTOR, 1, 0, 0);
 					libusb_fill_control_transfer(transfer, handle, buffer, callback, transfer, 50);
 
 					int transfer_error = libusb_submit_transfer(transfer);
-					printf("Submitted transfer, returned: %s\n", libusb_strerror(transfer_error));
+
 
 					// Fill allocated interrupt transfer
-					//
-					// STILL A LITTLE BROKEN, DOESNT CALL CALLBACK
-					// 
-					//libusb_fill_interrupt_transfer(transfer, handle, 0x00, buffer, sizeof(buffer), callback, NULL, 500);
+					/*libusb_fill_interrupt_transfer(transfer, handle, 0x00, buffer, sizeof(buffer), callback, NULL, 500);
 
 					// Send transfer
-					//int transfer_error = libusb_submit_transfer(transfer);
-					//printf("Submitted transfer, returned: %s\n", libusb_strerror(transfer_error));
-
-					//callback(transfer);
+					int transfer_error = libusb_submit_transfer(transfer);
+					*/
+					
+					printf("Submitting transfer returned: %s\n", libusb_strerror(transfer_error));
+					if (transfer_error != 0)
+					{
+						int release_error = libusb_release_interface(handle, 0x00);
+						printf("release of interface with error: (%d)%s \n", release_error, libusb_strerror(release_error)); 			
+						libusb_close(handle);
+						exit(1);
+					}
+						
+					
+					// This will need to be a while()
+					libusb_handle_events(NULL);
 				}
-			}
-			
-			int k = 0;
-			while(k < 10)
-			{
-				sleep(1);
-				k++;
 			}
 			
 			printf("releasing interface: \n");
 			int release_error = libusb_release_interface(handle, 0x00);
-			printf("release of interface 0: %d, %s \n", release_error, libusb_strerror(release_error)); 			
+			printf("release of interface with error: (%d)%s \n", release_error, libusb_strerror(release_error)); 			
 			libusb_close(handle);
 		}
 	
@@ -149,6 +142,7 @@ int main(int argc, char** argv)
 
 	// Free device list when done
 	libusb_free_device_list(list, 1);
+
 	return 0;
 }
 
