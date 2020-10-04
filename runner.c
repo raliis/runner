@@ -102,29 +102,30 @@ int main(int argc, char** argv)
 					struct libusb_transfer* transfer = libusb_alloc_transfer(0);
 
 					// Create buffer for data
-					//char* buffer = (char*) libusb_dev_mem_alloc(handle, 500);
-					char* buffer = (char*) libusb_dev_mem_alloc(handle, 36);
+					char* buffer = (char*) libusb_dev_mem_alloc(handle, 500);
+					//char* buffer = (char*) libusb_dev_mem_alloc(handle, 36);
 					void (* callback) (struct libusb_transfer*);
 					callback = &transfer_callback;
+
+					// WILL TRY TO SEND A CONTROL PACKET TO SEE IF THAT RESPONDS
+					// this hexc data is from wireshark data, host <--> 1.3.0
+					//libusb_fill_control_setup(buffer, 0x80, LIBUSB_REQUEST_SET_CONFIGURATION, 1, 0, 0);
+					libusb_fill_control_setup(buffer, 
+						LIBUSB_RECIPIENT_DEVICE | LIBUSB_REQUEST_TYPE_CLASS | LIBUSB_ENDPOINT_OUT, 
+						LIBUSB_REQUEST_GET_DESCRIPTOR, 0, 0, 0);
+					libusb_fill_control_transfer(transfer, handle, buffer, callback, transfer, 50);
+
+					int transfer_error = libusb_submit_transfer(transfer);
+					printf("Submitted transfer, returned: %s\n", libusb_strerror(transfer_error));
 
 					// Fill allocated interrupt transfer
 					//
 					// STILL A LITTLE BROKEN, DOESNT CALL CALLBACK
 					// 
 					//libusb_fill_interrupt_transfer(transfer, handle, 0x00, buffer, sizeof(buffer), callback, NULL, 500);
-					// WILL TRY TO SEND A CONTROL PACKET TO SEE IF THAT RESPONDS
-					// this hexc data is from wireshark data, host <--> 1.3.0
-					libusb_fill_control_setup(buffer, 0x00, LIBUSB_REQUEST_SET_CONFIGURATION, 1, 0, 0);
-					libusb_fill_control_transfer(transfer, handle, buffer, callback, transfer, 50);
-
-					int transfer_error = libusb_submit_transfer(transfer);
-					printf("Submitted transfer, returned: %s\n", libusb_strerror(transfer_error));
-
-
-					//libusb_fill_interrupt_transfer(transfer, handle, 0x00, buffer, sizeof(buffer), callback, NULL, 500);
 
 					// Send transfer
-					//transfer_error = libusb_submit_transfer(transfer);
+					//int transfer_error = libusb_submit_transfer(transfer);
 					//printf("Submitted transfer, returned: %s\n", libusb_strerror(transfer_error));
 
 					//callback(transfer);
@@ -140,7 +141,8 @@ int main(int argc, char** argv)
 			
 			printf("releasing interface: \n");
 			int release_error = libusb_release_interface(handle, 0x00);
-			printf("release of interface 0: %d, %s \n", release_error, libusb_strerror(release_error)); 			libusb_close(handle);
+			printf("release of interface 0: %d, %s \n", release_error, libusb_strerror(release_error)); 			
+			libusb_close(handle);
 		}
 	
 	}
