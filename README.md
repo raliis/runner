@@ -35,3 +35,4 @@ See doc for more insights and better coverage of different aspects
   * select which transfer u want to use(control, isochronos, interrupt, bulk)
 9. submit transfer
   * this adds your transfer to the queue, returns immediately and gives feedback if it was successful or there was a problem(i.e. interface was unclaimed or claimed by someone else, e.g kernel)
+10. handle callback
