@@ -9,6 +9,7 @@ int main(int argc, char** argv)
 	// Initializing the library
 	const struct libusb_version* ver = libusb_get_version();
 	int init_result = libusb_init(NULL);
+	libusb_set_debug(NULL, 4); //set verbosity level to 4, get all the available info
 
 	// Greet the user
 	printf ("Runner v0.1, using libusb %d.%d.%d\n", ver->major, ver->minor, ver->micro);
@@ -80,6 +81,8 @@ int main(int argc, char** argv)
 				printf("\tAutorelease of interface 0: %d, %s \n", autorelease_error, libusb_strerror(autorelease_error));
 
 				printf("claiming interface: \n");
+				// maybe i need to claim more interfaces
+				// currently only claiming 0
 				int claim_error = libusb_claim_interface(handle, 0);
 				printf("\tclaim of interface 0: %d, %s \n", claim_error, libusb_strerror(claim_error));
 
@@ -96,15 +99,22 @@ int main(int argc, char** argv)
 					struct libusb_transfer* transfer = libusb_alloc_transfer(0);
 
 					// Create buffer for data
-					char* buffer = (char*) libusb_dev_mem_alloc(handle, 500);
+					char* buffer = (char*) libusb_dev_mem_alloc(handle, 256);
 					//char* buffer = (char*) libusb_dev_mem_alloc(handle, 36);
 					void (* callback) (struct libusb_transfer*);
 					callback = &transfer_callback;
 
 					//SENDING A CONTROL PACKET TO SEE IF THAT RESPONDS
-					libusb_fill_control_setup(buffer, 
-						LIBUSB_RECIPIENT_DEVICE | LIBUSB_REQUEST_TYPE_STANDARD | LIBUSB_ENDPOINT_OUT, 
+					// print out values for each value that is in the or chain
+					/*libusb_fill_control_setup(buffer, 
+						LIBUSB_RECIPIENT_DEVICE | LIBUSB_REQUEST_TYPE_STANDARD | LIBUSB_ENDPOINT_IN, 
 						LIBUSB_REQUEST_GET_DESCRIPTOR, 1, 0, 0);
+					*/
+					libusb_fill_control_setup(buffer, 
+						0x01, // 0xffff88f23e1ac480, 
+						0x06, // LIBUSB_REQUEST_GET_DESCRIPTOR,
+						0x01, 0x00, 0xFF);
+					
 					libusb_fill_control_transfer(transfer, handle, buffer, callback, transfer, 50);
 
 					int transfer_error = libusb_submit_transfer(transfer);
@@ -126,9 +136,13 @@ int main(int argc, char** argv)
 						exit(1);
 					}
 						
-					
-					// This will need to be a while()
-					libusb_handle_events(NULL);
+					while (1)
+					{
+						sleep(1);
+						// This will need to be a while()
+						libusb_handle_events(NULL);
+						
+					}				
 				}
 			}
 			
