@@ -12,6 +12,11 @@ int main(int argc, char** argv)
 	// Initializing the library
 	const struct libusb_version* ver = libusb_get_version();
 	int init_result = libusb_init(NULL);
+
+	// check if libusb has capability to HID
+	printf ("Nonzero if libusb has capability LIBUSB_CAP_HAS_CAPABILITY: %d\n", libusb_has_capability(LIBUSB_CAP_HAS_CAPABILITY));
+	printf ("Nonzero if libusb has capability LIBUSB_CAP_HAS_HID_ACCESS: %d\n", libusb_has_capability(LIBUSB_CAP_HAS_HID_ACCESS));
+
 	libusb_set_debug(NULL, 3); //set verbosity level to 4, get all the available info
 
 	// Greet the user
@@ -107,13 +112,15 @@ int main(int argc, char** argv)
 					int config_error = libusb_get_configuration(handle, &current_config);
 					printf("\tcurrent config is: %d\n\terror: %d, %s\n", current_config, config_error, libusb_strerror(config_error));
 					
+					printf ("Setting of alt setting: %s\n", libusb_strerror(libusb_set_interface_alt_setting(handle, 0, 0)));
+
 					//printf("kernel driver active: %d\n", libusb_kernel_driver_active(handle, 0));
 
 					// Allocate a transfer, with argument 0 for interrupt endpoints
 					struct libusb_transfer* transfer = libusb_alloc_transfer(0);
 
 					// Create buffer for data
-					char* buffer = (char*) libusb_dev_mem_alloc(handle, 64);
+					char* buffer = (char*) libusb_dev_mem_alloc(handle, 64*64);
 					void (* callback) (struct libusb_transfer*);
 					callback = &transfer_callback;
 
