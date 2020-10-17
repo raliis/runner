@@ -42,15 +42,17 @@ void transfer_callback(struct libusb_transfer* transfer)
 {
 	printf ("We are now in the callback\n");
 
+	printf ("Setup is: %s", libusb_control_transfer_get_setup(transfer));
+	printf ("Data is: %s", libusb_control_transfer_get_data(transfer));
 	// This seg faults, because no status is present
 	//printf ("The status of transfer is: %s\n", transfer->status);
 	
-	printf ("buffer: %s\n", transfer->buffer);
+	/*printf ("buffer: %s\n", transfer->buffer);
 	printf ("endpoint: %s\n", transfer->endpoint);
 	printf ("flags: %s\n", transfer->flags);
 	//printf ("length: %s\n", transfer->length);
 	printf ("user data: %s\n", transfer->user_data);
-	printf ("type: %s\n", transfer->type);
+	printf ("type: %s\n", transfer->type);*/
 }
 
 void print_device_info(libusb_device* dev) 
@@ -63,7 +65,7 @@ void print_device_info(libusb_device* dev)
 	}
 	printf("Number of possible configurations: %d\n", (int)desc.bNumConfigurations);
 	printf("Device Class: %d\n", (int)desc.bDeviceClass);
-	printf("\tVendorID | ProductID\n\t%d | %d\n", desc.idVendor, desc.idProduct);
+	//printf("\tVendorID | ProductID\n\t%d | %d\n", desc.idVendor, desc.idProduct);
 
 	struct libusb_config_descriptor *config;
 	libusb_get_config_descriptor(dev, 0, &config);
@@ -102,7 +104,7 @@ void print_device_info(libusb_device* dev)
 				printf("\t\t\tEP bmAttributes: %d\n", (int)epdesc->bmAttributes); // interrupt endpoints
 				printf("\t\t\tEP bRefresh: %d\n", (int)epdesc->bRefresh); // only for audio devices, can be ignored
 				printf("\t\t\tEP bSynchAddress: %d\n", (int)epdesc->bSynchAddress); // also only audio devices
-				printf("\t\t\tEP extra: %s\n", (int)epdesc->extra);
+				//printf("\t\t\tEP extra: %s\n", epdesc->extra);
 				printf("\t\t\tEP extra_length: %d\n", (int)epdesc->extra_length);
 				printf("\t\t\tEP wMaxPacketSize: %d\n", (int)epdesc->wMaxPacketSize);
 				printf("\n");
