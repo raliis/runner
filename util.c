@@ -65,7 +65,6 @@ void print_device_info(libusb_device* dev)
 	}
 	printf("Number of possible configurations: %d\n", (int)desc.bNumConfigurations);
 	printf("Device Class: %d\n", (int)desc.bDeviceClass);
-	//printf("\tVendorID | ProductID\n\t%d | %d\n", desc.idVendor, desc.idProduct);
 
 	struct libusb_config_descriptor *config;
 	libusb_get_config_descriptor(dev, 0, &config);

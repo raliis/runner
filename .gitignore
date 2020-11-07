@@ -1,4 +1,6 @@
 runner
+runner_hid
 *.o
 notes
 first_*
+dev_info.txt
