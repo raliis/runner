@@ -1,7 +1,7 @@
 #include "parse_data.h"
-#include<stdio.h>
-#include<time.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
 
 int hex2int(int i){
 	char c[255];
@@ -9,7 +9,7 @@ int hex2int(int i){
 	return atoi(c);
 }
 
-int parseUserData(unsigned char *buf, int bufsize, PGconn *db){
+int parseUserData(unsigned char *buf, int bufsize){
 
 	if(buf[2]!=0x14 && buf[3]!=0x0e){
 		printf("Buffer does not consist of user data!\n");
@@ -39,9 +39,6 @@ int parseUserData(unsigned char *buf, int bufsize, PGconn *db){
 	time.tm_year=buf[22]+100;
 	time.tm_isdst = -1;	
 	ud.editdate=(long) mktime(&time);
-	/*if(db!=NULL){
-		db_insert_udata(db,&ud);	
-	}*/
 
 	printf("weight=%.1f kg (%.1f lbs)\n", (double)((buf[6]<<8)+buf[5])*0.045359,(double)((buf[6]<<8)+buf[5])/10 );
 	printf("height=%d cm\n", buf[7]);
@@ -67,7 +64,7 @@ int parseCommand1(unsigned char *buf, int bufsize){
 
 
 
-int parseTrainingData(unsigned char *buf, int bufsize, PGconn *db){
+int parseTrainingData(unsigned char *buf, int bufsize){
 
 	if(buf[2]!=0x2a && buf[3]!=0x06){
 		printf("Buffer does not consist of training data!\n");
@@ -101,10 +98,6 @@ int parseTrainingData(unsigned char *buf, int bufsize, PGconn *db){
 	trn.avgHr=buf[34];
 	trn.maxHr=buf[35];
 	trn.HRMax=buf[36];
-
-	/*if(db!=NULL){
-		db_insert_trn(db,&trn);
-	}*/
 
 	printf("training_id=%d\n",buf[5]);
 	printf("training duration=%x:%x:%x\n",buf[8],buf[7],buf[6]);
