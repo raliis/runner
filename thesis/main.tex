@@ -1,0 +1,123 @@
+%
+% Tallinn University of Technology - bachelor, master thesis template for LaTeX
+%
+% Public Version 1.1
+% 2019 Adjusted by Frank Korving for his Bachelor Thesis, with contributions from Sander Arnus
+%
+% Public version 1.0
+% 2010 - 2013 Thijs Nugteren and Joos Buijs for Master Thesis
+%
+% THIS IS THE MAIN FILE (i.e. compile this file, compiling the others directly won't work)
+%
+\documentclass[12pt, a4paper]{report}
+
+% all the other includes etc. are done in the thesis.sty file.
+\usepackage{thesis}
+
+%
+% These commands need to be defined in order to produce a correct and personalized document
+%
+\newcommand{\doctitle}{My Thesis Title}
+\newcommand{\docsubtitle}{Bachelor Thesis}
+
+\newcommand{\me}{Your Name}
+\newcommand{\studentcode}{Your Student Code}
+\newcommand{\university}{TALLINN UNIVERSITY OF TECHNOLOGY}
+\newcommand{\school}{School of ...}
+\newcommand{\department}{Your Department}
+
+\newcommand{\supervisor}{Main Supervisor Name}
+\newcommand{\supervisortitle}{PhD}
+\newcommand{\cosupervisor}{Secondary Supervisor Name}
+\newcommand{\cosupervisortitle}{MsC}
+\newcommand{\keywords}{Important, comma, separated, keywords, applicable, to, your, thesis}
+\newcommand{\version}{0.1 version}
+\newcommand{\monthYear}{Month Year}
+\newcommand{\Year}{Year}
+\newcommand{\signatureDate}{Month Day, Year}
+
+\author{\me}
+
+%
+% PDF settings
+%
+\hypersetup
+{
+    pdfauthor={\me},
+    pdfsubject={\doctitle},
+    pdfkeywords={\keywords}
+}
+
+\begin{document}
+\pagenumbering{roman}
+\include{titlepage}
+
+\normalsize
+
+\chapter*{\centerline{Author's declaration of originality}}\label{chapter:declaration}
+\input{chapters/authordeclaration.tex}
+
+\chapter*{\centerline{Annotatsioon}}\label{chapter:abstract-eesti}
+\input{chapters/abstract-eesti.tex}
+\pagebreak
+
+\chapter*{\centerline{Abstract}}\label{chapter:abstract}
+\input{chapters/abstract}
+\pagebreak
+
+\chapter*{\centerline{List of abbreviations and terms}}\label{chapter:terms}
+\input{chapters/terms_abbreviations.tex}
+\pagebreak
+
+\phantomsection
+\setcounter{tocdepth}{2}    % Sets maximum depth of Table Of Contents
+\renewcommand{\contentsname}{Table of Contents}
+\tableofcontents
+
+\clearpage \phantomsection
+\setcounter{figure}{0}
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listoffigures
+
+\clearpage \phantomsection
+\addcontentsline{toc}{chapter}{\listtablename}
+\listoftables
+
+\chapter{Introduction}\label{chapter:introduction}
+\onehalfspacing
+\setcounter{page}{0}
+\pagenumbering{arabic}   %from here on, start the 'real' page numbering, from 1, with normal digits
+\input{chapters/introduction}
+
+\chapter{First Chapter}\label{chapter:first_chapter}
+\input{chapters/first_chapter.tex}
+
+\chapter{Second Chapter}\label{chapter:second_chapter}
+\input{chapters/second_chapter.tex}
+
+\chapter{Summary}\label{chapter:summary} 
+\input{chapters/summary.tex}
+
+\pagebreak
+\phantomsection
+\addcontentsline{toc}{chapter}{Bibliography}
+\printbibliography
+
+\pagebreak
+\phantomsection
+\appendix
+\addcontentsline{toc}{chapter}{Appendices}
+\chapter*{Appendices}
+\renewcommand{\thechapter}{\arabic{chapter}}
+
+\addcontentsline{toc}{chapter}{Appendix 1 - Something}\label{chapter:appendix-one}
+{\let\clearpage\relax\chapter*{Appendix 1 - Something}}
+\input{appendices/appendix-one.tex}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Appendix 2 - Something Else}\label{chapter:appendix-something-else}
+\chapter*{Appendix 2 - Something Else}
+\input{appendices/appendix-something-else.tex}
+
+\end{document}
