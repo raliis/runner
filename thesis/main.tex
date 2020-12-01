@@ -17,23 +17,21 @@
 %
 % These commands need to be defined in order to produce a correct and personalized document
 %
-\newcommand{\doctitle}{My Thesis Title}
-\newcommand{\docsubtitle}{Bachelor Thesis}
+\newcommand{\doctitle}{Polar spordikella andmeliides}
+\newcommand{\docsubtitle}{bakalaureusetöö}
 
-\newcommand{\me}{Your Name}
-\newcommand{\studentcode}{Your Student Code}
-\newcommand{\university}{TALLINN UNIVERSITY OF TECHNOLOGY}
-\newcommand{\school}{School of ...}
-\newcommand{\department}{Your Department}
+\newcommand{\me}{Rainer Liis}
+\newcommand{\studentcode}{164039IACB}
+\newcommand{\university}{TALLINNA TEHNIKAÜLIKOOL}
+\newcommand{\school}{Infotehnoloogia teaduskond}
+\newcommand{\department}{Arvutisüsteemide instituut}
 
-\newcommand{\supervisor}{Main Supervisor Name}
-\newcommand{\supervisortitle}{PhD}
-\newcommand{\cosupervisor}{Secondary Supervisor Name}
-\newcommand{\cosupervisortitle}{MsC}
+\newcommand{\supervisor}{Jürgen Soom}
+\newcommand{\supervisortitle}{}
 \newcommand{\keywords}{Important, comma, separated, keywords, applicable, to, your, thesis}
 \newcommand{\version}{0.1 version}
-\newcommand{\monthYear}{Month Year}
-\newcommand{\Year}{Year}
+\newcommand{\monthYear}{Detsember 2020}
+\newcommand{\Year}{2020}
 \newcommand{\signatureDate}{Month Day, Year}
 
 \author{\me}
@@ -54,7 +52,7 @@
 
 \normalsize
 
-\chapter*{\centerline{Author's declaration of originality}}\label{chapter:declaration}
+\chapter*{\centerline{Autorideklaratsioon}}\label{chapter:declaration}
 \input{chapters/authordeclaration.tex}
 
 \chapter*{\centerline{Annotatsioon}}\label{chapter:abstract-eesti}
@@ -65,13 +63,13 @@
 \input{chapters/abstract}
 \pagebreak
 
-\chapter*{\centerline{List of abbreviations and terms}}\label{chapter:terms}
+\chapter*{\centerline{Lühendite ja mõistete sõnastik}}\label{chapter:terms}
 \input{chapters/terms_abbreviations.tex}
 \pagebreak
 
 \phantomsection
 \setcounter{tocdepth}{2}    % Sets maximum depth of Table Of Contents
-\renewcommand{\contentsname}{Table of Contents}
+\renewcommand{\contentsname}{Sisukord}
 \tableofcontents
 
 \clearpage \phantomsection
@@ -83,19 +81,19 @@
 \addcontentsline{toc}{chapter}{\listtablename}
 \listoftables
 
-\chapter{Introduction}\label{chapter:introduction}
+\chapter{Sissejuhatus}\label{chapter:introduction}
 \onehalfspacing
 \setcounter{page}{0}
 \pagenumbering{arabic}   %from here on, start the 'real' page numbering, from 1, with normal digits
 \input{chapters/introduction}
 
-\chapter{First Chapter}\label{chapter:first_chapter}
+\chapter{Esimene peatükk}\label{chapter:first_chapter}
 \input{chapters/first_chapter.tex}
 
 \chapter{Second Chapter}\label{chapter:second_chapter}
 \input{chapters/second_chapter.tex}
 
-\chapter{Summary}\label{chapter:summary} 
+\chapter{Kokkuvõte}\label{chapter:summary} 
 \input{chapters/summary.tex}
 
 \pagebreak
