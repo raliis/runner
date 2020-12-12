@@ -16,4 +16,7 @@ thesis/*.dotx
 thesis/*.dotx.bak
 thesis/*.out
 thesis/*.pdf
-
+thesis/.vscode
+.vscode
+*.blg
+*.bbl
