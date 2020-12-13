@@ -13,24 +13,10 @@ Antud rakenduses on seda palju kasutatud, igal sammul on kasutusel mingisugune f
 
 
 Programmi tööpõhimõte
-Programmi alguses määratakse ära vaikeväärtused, mida rakendus kasutab.
-Seejärel initsialiseeritakse teek ning antakse kasutajale teada mis versioon libusbst kasutusel on.
-Kui kasutaja on andnud rakendusele kaasa parameetrid, mille järgi soovib leida seadet, millega suhelda siis otsitakse seda konkreetset seadet ja kui kasutada ei ole neid kaasa andnud, kastuatakse vaikeväärtuseid.
-Kui otsitavat seadet ei leita, lõpetatakse programmi töö.
-Kui otsitav seade on olemas ja ligipääsetav, siis programm jätkab seadme kohta informatsiooni väljastamisega.
-Enne kellale päringute saatmist peab seadme avama, mida ka tehakse.
-Kui avamine õnnestub, teatakse kasutajale, et see õnnestus, kui ei siis programmi töö katkestatakse.
-Seejärel peaks hakkama kellast informatsiooni kättesaamine, kuid seda programmi osa projekti raames valmis ei saadud.
 
 
 
-Kella uurimiseks ja sellest andmete kättesaamiseks on erinevaid võimalusi, mida järgnevalt kirjeldatakse.
-Lihtsaim variant on ühendada kell arvuti külge, millel töötab esialgne programm, panna tööle mõni programm, mis suudab jälgida kella ja arvuti suhtlust USB liinil ning siis proovida seda emuleerida.
-See oleks kõige lihtsam ja ka kindlam, kuna oht kella kahjustada on kõige väiksem.
-Teine variant oleks riistvaraliselt jälgida, mis suhtlus toimub kella ja arvuti vahel. See lähenemine ei ole nii lihtne, kui esimene ja selle jaoks on ka vaja rohkem teadmisi USB protokolli kohta, kui ka riistvara kohta.
-Seda lähenemist ei valitud, kuna polnud ligipääsu piisavatele vahenditele.
-Metoodika, mis valituks osutus oli katseeksitusmeetod.
-Antud valik oli tingitud 
+
 
 
 
@@ -44,10 +30,4 @@ Teised olid aru saamine, kuidas igasuguse USB seadmega suhelda, kasutades libusb
 
 Miks oli vaja seda teha?
 Oli soov saada andmeid kellast kätte ja neid siis töödelda, et saaks teha statistikat ja määrata eesmärke et oma jooksmist ja muid spordialasid jälgida.
-Originaalne rakendus Polari enda poolt töötas nii, et tuli ühendada kell arvuti külge, seejärel käivitada rakendus.
-Andmete kättesaamiseks ja vaatamiseks oli vaja luua kasutajakonto nende andmebaasi.
-Kui konto oli olemas, tuli logida sisse enda kasutajanime ja parooliga rakendusse, mis seejärel tõmbas andmed kellast pilve, kus neid siis töödeldi ja seejärel sai andmeid minna vaatama nende veebikeskkonda. 
-Enda masinasse andmeid ei jäetud, nii et neist koopiat teha ei olnud võimalik.
-Aasta?? tagasi nad lõpetasid toetuse ära rakendusele ja sulgesid ka veebikeskkonna, kuna see oli vana ja sooviti keskenduda uue süsteemi toetamisele.
-Selle tagajärjel on inimesed, kes kasutavad vana riistvara jäänud ilma võimalusest oma treeningute andmeid analüüsida rohkem, kui kellast iga individuaalse treeningu andmeid vaadates.
 

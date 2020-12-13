@@ -49,5 +49,20 @@
 %%
 %We can use variables set in the \textit{main.tex} file to render values like our title (\doctitle) or supervisor names (\textbf{Supervisor}: \supervisor, \textbf{Co-supervisor}: \cosupervisor{}).
 
-Lõputöö eesmärgiks oli luua programm, mis liidestub Polar RC3 GPS spordikellaga ning pärib sealt andmeid, mida siis kasutajale vormistatult väljastada. 
-Spordikell liidestub arvutiga USB kaudu saades arvutilt päringuid, millele siis vastatakse.\cite{example-reference}
+Lõputöö eesmärk oli luua rakendus, mis tõmbaks kasutaja andmed treeningute kohta Polar RC3 GPS kellast kasutaja arvutisse ning siis neid andmeid analüüsiks, võimaldaks seada eesmärke ja jälgida enda arengut.
+Konkreetsemalt keskenduti andmete kättesaamisele kellast, kuna ei ole teada täpne protsess kella ja arvuti suhtlusel.
+Rakendus oli planeeritud lihtsa käsurea programmina.
+
+\section{Probleem}\label{sec:probleem}
+Spordikella kasutades kogub see andmeid treeningu kohta.
+Treeninguid on erinevaid mida saab salvestada, põhiliselt on kella fookus aeroobne treening, jooksmine ja rattasõit.
+Põhilised andmed, mida kogutakse on läbitud distants, aeg, südametegevus ja muu sarnane.
+Konkreetse kella mudel ise on vana ja tootja Polar seda ise enam ei toeta.
+Seetõttu ei saa kasutada nende enda rakendusi kellast andmete kättesaamiseks ja nende analüüsimiseks.
+
+!! kas raakida ka sellest et vana rakenduse toopohimote on vaga risune ja rumal lahendus? voi pigem kuskil sisus selle tausta lahti seletades? !!
+
+\section{Lahendus}\label{sec:lahendus}
+Leida ja analüüsida olemasolevaid sarnaseid lahendusi, ka tootja enda rakendust ja saada aru kella andmevahetusest, et luua toimiv rakendus, mida saaks kasutada ka siis, kui tootele tuge enam ei ole.
+Rakenduse lähtekood jääb avatuks, et seda saaks vajadusel ka teised muuta ning funktsionaalsust laiendada.
+

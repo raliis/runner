@@ -64,7 +64,7 @@
 \pagebreak
 
 \chapter*{\centerline{Lühendite ja mõistete sõnastik}}\label{chapter:terms}
-\input{chapters/terms_abbreviations.tex}
+\input{chapters/luhendid.tex}
 \pagebreak
 
 \phantomsection
@@ -87,11 +87,17 @@
 \pagenumbering{arabic}   %from here on, start the 'real' page numbering, from 1, with normal digits
 \input{chapters/introduction}
 
-\chapter{Esimene peatükk}\label{chapter:first_chapter}
-\input{chapters/first_chapter.tex}
+\chapter{Kella tutvustus}\label{chapter:first_chapter}
+\input{chapters/kell.tex}
 
-\chapter{Second Chapter}\label{chapter:second_chapter}
-\input{chapters/second_chapter.tex}
+\chapter{Teek libusb}\label{chapter:libusb}
+\input{chapters/libusb.tex}
+
+\chapter{Metoodikad}\label{chapter:second_chapter}
+\input{chapters/metoodikad.tex}
+
+\chapter{Programmi töö kirjeldus}\label{chapter:second_chapter}
+\input{chapters/programm.tex}
 
 \chapter{Kokkuvõte}\label{chapter:summary} 
 \input{chapters/summary.tex}
@@ -101,21 +107,21 @@
 \addcontentsline{toc}{chapter}{Bibliography}
 \printbibliography
 
-\pagebreak
-\phantomsection
-\appendix
-\addcontentsline{toc}{chapter}{Appendices}
-\chapter*{Appendices}
-\renewcommand{\thechapter}{\arabic{chapter}}
+ %   \pagebreak
+ %   \phantomsection
+ %   \appendix
+ %   \addcontentsline{toc}{chapter}{Appendices}
+ %   \chapter*{Appendices}
+ %   \renewcommand{\thechapter}{\arabic{chapter}}
 
-\addcontentsline{toc}{chapter}{Appendix 1 - Something}\label{chapter:appendix-one}
-{\let\clearpage\relax\chapter*{Appendix 1 - Something}}
-\input{appendices/appendix-one.tex}
+ %  \addcontentsline{toc}{chapter}{Appendix 1 - Something}\label{chapter:appendix-one}
+ %   {\let\clearpage\relax\chapter*{Appendix 1 - Something}}
+ %   \input{appendices/appendix-one.tex}
 
-\clearpage
-\phantomsection
-\addcontentsline{toc}{chapter}{Appendix 2 - Something Else}\label{chapter:appendix-something-else}
-\chapter*{Appendix 2 - Something Else}
-\input{appendices/appendix-something-else.tex}
+ %   \clearpage
+ %   \phantomsection
+ %   \addcontentsline{toc}{chapter}{Appendix 2 - Something Else}\label{chapter:appendix-something-else}
+ %   \chapter*{Appendix 2 - Something Else}
+ %   \input{appendices/appendix-something-else.tex}
 
 \end{document}
