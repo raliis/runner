@@ -49,20 +49,21 @@
 %%
 %We can use variables set in the \textit{main.tex} file to render values like our title (\doctitle) or supervisor names (\textbf{Supervisor}: \supervisor, \textbf{Co-supervisor}: \cosupervisor{}).
 
-Lõputöö eesmärk oli luua rakendus, mis tõmbaks kasutaja andmed treeningute kohta Polar RC3 GPS kellast kasutaja arvutisse ning siis neid andmeid analüüsiks, võimaldaks seada eesmärke ja jälgida enda arengut.
+Spordikellad on järjest rohkem populaarsust koguvad tooted, mida järjest rohkem inimesi omab ja igapäevaselt kasutab.
+Spordikellad võimaldavad mugavalt koguda andmeid ja jälgida enda füüsilise aktiivsuse taset, mis on järjest olulisem, eriti neil, kellel on pigem istuv töö.
+Kellast saab reeglina andmeid kätte kas mobiiliseadmega või arvutiga ning siis nende andmete põhjal enda sooritusi hinnata.
+
+Antud töös kasutatud spordikell on Polar RC3 GPS(edaspidi kell).
+Kell on suunatud aeroobsete spordialade jälgimiseks ja suudab koguda andmeid südametöö ja asukoha andmeid.
+Spordikell on originaalselt mõeldud tootja enda tarkvaraga töötama ja sellega andmeid töötlema.
+Originaalsel rakendusel on puudujääke, mis selle kasutamist ebameeldivaks teevad.
+Kella ainus liides arvutiga on USB ning rakendus töötas vaid Windows ja Mac operatsioonisüsteemidel.
+Veel ei kogunud rakendus andmeid kasutaja arvutisse, et siis neid lokaalselt analüüsida, vaid suunas andmed otse pilveteenusesse, kuhu oli vaja registreeruda, et oma andmetele ligi pääseda.
+Lisaks eelnevatele takistustele, lõpetati ka 2019 aasta lõpuga\cite{polar-ws-discontinued} ära toetus rakendusele ning mindi üle uuele platvormile, millega antud kell enam ühilduda ei suuda.
+
+Lõputöö eesmärk oli luua rakendus, mis tõmbaks kasutaja andmed treeningute kohta kellast kasutaja arvutisse ning siis analüüsiks saadud andmeid, võimaldaks seada eesmärke ja jälgida enda arengut.
+Otsiti ja analüüsiti olemasolevaid sarnaseid lahendusi, ka tootja enda rakendust, et saada aru kella andmevahetusest ning seega luua toimiv lahendus, mida saaks kasutada ka siis, kui tootel tuge enam ei ole.
+Rakendus oli suunatud Linuxi ooperatsioonisüsteemile lihtsa käsureaprogrammina, vajamata ühendust internetiga.
 Konkreetsemalt keskenduti andmete kättesaamisele kellast, kuna ei ole teada täpne protsess kella ja arvuti suhtlusel.
-Rakendus oli planeeritud lihtsa käsurea programmina.
-
-\section{Probleem}\label{sec:probleem}
-Spordikella kasutades kogub see andmeid treeningu kohta.
-Treeninguid on erinevaid mida saab salvestada, põhiliselt on kella fookus aeroobne treening, jooksmine ja rattasõit.
-Põhilised andmed, mida kogutakse on läbitud distants, aeg, südametegevus ja muu sarnane.
-Konkreetse kella mudel ise on vana ja tootja Polar seda ise enam ei toeta.
-Seetõttu ei saa kasutada nende enda rakendusi kellast andmete kättesaamiseks ja nende analüüsimiseks.
-
-!! kas raakida ka sellest et vana rakenduse toopohimote on vaga risune ja rumal lahendus? voi pigem kuskil sisus selle tausta lahti seletades? !!
-
-\section{Lahendus}\label{sec:lahendus}
-Leida ja analüüsida olemasolevaid sarnaseid lahendusi, ka tootja enda rakendust ja saada aru kella andmevahetusest, et luua toimiv rakendus, mida saaks kasutada ka siis, kui tootele tuge enam ei ole.
 Rakenduse lähtekood jääb avatuks, et seda saaks vajadusel ka teised muuta ning funktsionaalsust laiendada.
 
