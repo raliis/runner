@@ -1,0 +1,25 @@
+luhendid ja moisted tahestiku jarjekorda
+probleem ja lahendus mitte omaette punktidena, vaid loogilise jutuna
+kella kohta mainida mis voimekus ja veidi kirjeldada
+tarkvara osa eraldi, kus vordlus polari enda asjade ja siis ka teiste loodud asjade vahel, miks need ei sobinud.
+kui teha vordlust, tuua valja kategooriad, igauks omaette kaaluga ja siis kokku punktisumma.
+see aitab pohjendada otsust miks miski ei sobi ja seega in hea.
+usbi osa ja sellega seotud asjsd nagu libusb ja hidapi eraldi peatukki ja selgitada ka.
+
+usbi osas veel et HID seade ja kuidas sellega suhtlus peaks valja nagema.
+
+hetkel metoodikate osa okei, hiljem vaatab uuesti.
+
+kindlasti voodiagramm programmi too kirjeldamiseks. taieliku toimimise skeem.
+
+hiljem valja tuua et kuidas neid probleeme lahendada ja kuidas siis oelks parem
+
+tulemuse peatukk, mis olid takistused ja piirasid eesmargi saavutamist.
+
+sissejuhatuses miks neid kasutatakse ja miks nad populaarsed on, see tostab kohe vajadust normaalse rakenduse jarele.
+
+uks alternatiivne lahendus, proovida leida dataliine mille pealt lugeda aga kuna dokumentatsiooni ei ole siis ei saanud leida infot.
+
+kuna teek nkn c-s ja ma ise ka tean c-d koige paremini siis see oli minu valik.
+
+MIKS SA MIDAGI TEED KOIK TULEB ARA POHJENDADA
