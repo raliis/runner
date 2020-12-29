@@ -1,19 +1,36 @@
-%One of the best resources for \LaTeX basics, and advanced constructs, is the \LaTeX wikibook\footnote{To be found at~\url{http://en.wikibooks.org/wiki/LaTeX/}}. Of course fellow students, colleagues and a good internet search using your favorite search engine can do wonders if you're stuck. 
 
-Projektis kasutatud kellal bluetooth võimekus puudub, seega ainus võimalus andmeid kätte saada on USB kaudu.
-USB standard klassifitseerib ära seadmete klassid. Antud kell klassifitseerub HID seadmeks, mis tähendab seda, et see on seade millega inimesed saavad otseselt kasutada.
-HID seadmete jaoks on ette nähtud omaette suhtlusviis, kuidas saab edastada teateid seadmele ja sealt infot kätte.
+Projektis kasutatud kellal on ainus liides USB, Bluetooth võimekus puudub.
+Kasutusel olev USB versioon on 2.0.
+
+USB seadmetega suhtlus toimub mööda kontseptuaalseid torusid.
+Iga toru on ühendustee rakenduse ja seadme \textit{endpointi} vahel.
+Torud jagunevad omakorda kaheks: sõnumite ja voo torud.
+Sõnumite torusid kasutatakse kontrolledastusteks, mis on lühikesed ja lihtsad käsklused seadmele, voo torusid kasutatakse andmeedastuseks.\cite{dreamincode}
+Seadme \textit{endpoint} on riistvaraline osa seadmest, tavaliselt kogumik registreid kindla eesmärgiga, näiteks korralduste vastuvõtmine või andmete ülekandmine.\cite{endpoints}
+Igal USB seadmel on alati olemas \textit{endpoint} 0, mida kasutatakse põhiliste käskude edastamiseks ja seadme konfiguratsiooni seadmiseks seadme ühendamisel.
 
 
 \section{Libusb}\label{sec:libusb}
-Libusb on universaalne teek, kirjutatud C keeles, et hõlbustada programmide loomist, mis suhtlevad USB seadmetega.
+Libusb on C keeles kirjutatud universaalne teek, mis on loodud tarkvaraarendajatele USB seadmetega suhtlevate programmide kirjutamise hõlbustamiseks.
+See annab väga täpse kontrolli rakenduse suhtluse üle seadmega ning toetab mitmeid USB versioone.
+Lisaks ei sõltu teek konkreetsest platvormist, nii et seda saab kasutada mitmel operatsioonisüsteemil töötava rakenduse loomisel.
+Antud teek sai valitud, kuna sobis täpselt probleemi lahendamiseks kuna võimaldas piisavalt täpset kontrolli programmi töö üle.\cite{libusb}
+Teek koosneb moodulitest, millest igaüks on erineva otstarbega.
+
+\subsection{Kasutus}
+Teegi kasutamiseks tuleb see esimese sammuna initsialiseerida.
+Seejärel tuleb leida arvuti kügle ühendatud seadmete hulgast soovitud seade üles leida.
+Kui seade on valitud, tuleb selle suhtlused teiste programmidega lõpetada ja siis suhtluseks avada.
+Peale seadme edukat avamist on see võimeline vastu võtma programmilt andmeid ja käsklusi.
+Suhtluseks seadmega on olemas kaks varianti: sünkroonse ja asünkroonse IO moodul.
+Sünkroonse andmevahetuse APIt on lihtsam kasutada, kuid see pole nii võimas, kui asünkroonne.
+Sünkroonse andmevahetuse suurim puudujääk on, et kogu suhtlus toimub sama lõime peal, kus ka ülejäänud programmi töö, pannes seega programmi töö ootama, kuniks andmevahetus läbi on.
+Asünkroonne suudab suhtluse seadmega taustale suunata, et kasutajaga suhtlev programm saaks edasi funktsioneerida sõltumata sellest, kui kaua toimub andmevahetus seadmega. 
 
 
 \section{Hidapi}
-Hidapi on teek, mis on konkreetsemalt mõeldud HID seadmetega suhtlema.
-
-[need notes on this, mida siin tapselt oelda]
-
-mis asjad on endpointid jne
-
-kirjelda kuidas see suhtlus on et koigepealt avad jne 
+Hidapi on teek, mis on loodud HID seadmetega suhtlust hõlbustama, realiseerides ära enim kasutatud funktsioonid, kaasaarvatud andmete saatmine ja vastuvõtmine.
+Hidapil on igal platvormil erinev \textit{back-end}, Linuxi platvormil on neid valikus 2.
+Esimene on Linuxi kernelis sees olev \textit{hidraw} draiver ja teine on libusb teegiga realiseeritud versioon.
+Projekti kirjutamisel on juba kasutusel libusb teek ning seega valiti selle \textit{back-end}iga versioon, et veelgi lihtsustada programmi kirjutamise protsessi.
+Teeki on võimalik väga lihtsalt ühe \textit{header} failina programmi kaasata.\cite{hidapi}

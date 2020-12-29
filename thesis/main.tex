@@ -28,7 +28,7 @@
 
 \newcommand{\supervisor}{Jürgen Soom}
 \newcommand{\supervisortitle}{}
-\newcommand{\keywords}{Important, comma, separated, keywords, applicable, to, your, thesis}
+\newcommand{\keywords}{USB, libusb, hidapi, polar, }
 \newcommand{\version}{0.1 version}
 \newcommand{\monthYear}{Detsember 2020}
 \newcommand{\Year}{2020}
@@ -78,10 +78,10 @@
 \addcontentsline{toc}{chapter}{\listfigurename}
 \listoffigures
 
-\clearpage \phantomsection
-\renewcommand{\listtablename}{Tabelite loetelu}
-\addcontentsline{toc}{chapter}{\listtablename}
-\listoftables
+%\clearpage \phantomsection
+%\renewcommand{\listtablename}{Tabelite loetelu}
+%\addcontentsline{toc}{chapter}{\listtablename}
+%\listoftables
 
 \chapter{Sissejuhatus}\label{chapter:introduction}
 \onehalfspacing
@@ -95,14 +95,17 @@
 \chapter{USB}\label{chapter:usb}
 \input{chapters/usb.tex}
 
+\chapter{Olemasoleva tarkvara võrdlus}\label{chapter:soft}
+\input{chapters/soft.tex}
+
 \chapter{Metoodikad}\label{chapter:metoodika}
 \input{chapters/metoodikad.tex}
 
+\chapter{Protsessikirjeldus}\label{chapter:protsess}
+\input{chapters/andmed.tex}
+
 \chapter{Programmi töö kirjeldus}\label{chapter:kirjeldus}
 \input{chapters/programm.tex}
-
-\chapter{Olemasoleva tarkvara võrdlus}\label{chapter:soft}
-\input{chapters/soft.tex}
 
 \chapter{Tulemused}\label{chapter:tulemused}
 \input{chapters/tulemus.tex}
