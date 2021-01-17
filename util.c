@@ -33,7 +33,7 @@ void error(char* msg, int severity)
 	}
 }
 
-int is_interesting(libusb_device* dev, int bus, int port)
+/*int is_interesting(libusb_device* dev, int bus, int port)
 {
 	return ((libusb_get_bus_number(dev) == bus) && libusb_get_port_number(dev) == port); 
 }
@@ -47,12 +47,12 @@ void transfer_callback(struct libusb_transfer* transfer)
 	// This seg faults, because no status is present
 	//printf ("The status of transfer is: %s\n", transfer->status);
 	
-	/*printf ("buffer: %s\n", transfer->buffer);
+	printf ("buffer: %s\n", transfer->buffer);
 	printf ("endpoint: %s\n", transfer->endpoint);
 	printf ("flags: %s\n", transfer->flags);
 	//printf ("length: %s\n", transfer->length);
 	printf ("user data: %s\n", transfer->user_data);
-	printf ("type: %s\n", transfer->type);*/
+	printf ("type: %s\n", transfer->type);
 }
 
 void print_device_info(libusb_device* dev) 
@@ -182,4 +182,4 @@ int readData(hid_device *handle, unsigned char *buf, int bufsize, int showdata){
 		printf("\n");
 	}
 	return 1;
-}
+}*/

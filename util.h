@@ -6,7 +6,6 @@
 #include <string.h>
 #include <libusb-1.0/libusb.h>
 
-#include "hidapi.h"
 
 #define MAX_STR 255
 #define TRUE 1
@@ -24,7 +23,7 @@ int select_mode(char*);
 void error(char*, int);
 
 // determine if this is the device were looking for
-int is_interesting(libusb_device*, int, int);
+/*int is_interesting(libusb_device*, int, int);
 
 // transfer callback
 void transfer_callback(struct libusb_transfer*);
@@ -37,5 +36,6 @@ int poolPresence(hid_device *handle);
 int executeCommand1(hid_device *handle, unsigned char *buf, int bufsize, unsigned char *command, int commandsize, int showdata);
 
 int readData(hid_device *handle, unsigned char *buf, int bufsize, int showdata);
+*/
 #endif
 
