@@ -1,4 +1,6 @@
 
+#include "runner_hid.h"
+
 int getData(int vid, int pid)
 {
 	// Get version

@@ -33,7 +33,7 @@ void error(char* msg, int severity)
 	}
 }
 
-/*int is_interesting(libusb_device* dev, int bus, int port)
+int is_interesting(libusb_device* dev, int bus, int port)
 {
 	return ((libusb_get_bus_number(dev) == bus) && libusb_get_port_number(dev) == port); 
 }
@@ -182,4 +182,4 @@ int readData(hid_device *handle, unsigned char *buf, int bufsize, int showdata){
 		printf("\n");
 	}
 	return 1;
-}*/
+}
