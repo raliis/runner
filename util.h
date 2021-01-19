@@ -17,7 +17,7 @@
 #define ENDPOINT_OUT 1
 #define ENDPOINT_IN 81
 
-int select_mode(char*);
+/*int select_mode(char*);
 
 // severity 0 means warning, 1 means error, quits
 void error(char*, int);
@@ -35,7 +35,7 @@ int poolPresence(hid_device *handle);
 
 int executeCommand1(hid_device *handle, unsigned char *buf, int bufsize, unsigned char *command, int commandsize, int showdata);
 
-int readData(hid_device *handle, unsigned char *buf, int bufsize, int showdata);
+int readData(hid_device *handle, unsigned char *buf, int bufsize, int showdata);*/
 
 #endif
 

@@ -1,5 +1,5 @@
 #include "util.h"
-
+/*
 int select_mode(char* mode)
 {
 	if (!(strcmp (mode, "add") && strcmp (mode, "a")))
@@ -183,3 +183,5 @@ int readData(hid_device *handle, unsigned char *buf, int bufsize, int showdata){
 	}
 	return 1;
 }
+
+*/

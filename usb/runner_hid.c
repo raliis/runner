@@ -2,7 +2,7 @@
 #include "runner_hid.h"
 
 int getData(int vid, int pid)
-{
+{/*
 	// Get version
     const struct hid_api_version *ver = hid_version();
 
@@ -102,7 +102,7 @@ int getData(int vid, int pid)
     }
 
     hid_close(opened);
-        
+        */
 	return 0;
 }
 

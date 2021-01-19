@@ -5,6 +5,8 @@
 #include "util.h"
 #include "usb/runner_hid.h"
 
+int printAll();
+
 int main (int argc, char** argv)
 {
 	int c;                              // holds options
@@ -39,7 +41,33 @@ int main (int argc, char** argv)
 	}
     printf ("Flags: %d\n", flag);
 
-	
+	if (flag & 0x01)
+	{
+		printf("\nPrinting all data returned: %d\n", printAll());
+	}
 
     return 0;
+}
+
+int printAll()
+{
+	FILE* datafile;
+	char* buffer[5];
+	datafile = fopen("data", "r");
+
+	while (fscanf(datafile, "%c", buffer) != EOF)
+	{
+		if (buffer != '\0')
+		{
+   			fprintf(stdout, "%s", buffer );
+		}
+		else
+		{
+			fprintf(stdout, "\n");
+		}
+	}
+
+	fclose(datafile);
+
+	return 0;
 }
