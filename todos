@@ -1,3 +1,4 @@
+13.01
 * data fail luua
 	* moelda mis on pohilised ja koige vaartuslikumad
 * disaini moelda
@@ -8,3 +9,11 @@
 * eemalda thesise osa gitist ja sealt kaustast kuna see nkn overleafis uleval
 * todos into git
 
+20.01
+* vaadata andmefail ule
+* luua kasutaja andmete fail
+* kasutajaliidest moelda ja mock-up teha
+
+27.01
+* csv parser
+* flowchart
