@@ -15,6 +15,8 @@ int getAllRecords(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], char* dat
 int parse(char* line, char* delimiter, char table[MAXFIELDS][MAXFIELDLENGTH], int* actualfields);
 int getRecordDouble(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], double array[LINESINFILE], int field);
 int printAll(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], int records, int* rows);
+int showGoals(char* goalsfilename);
+int setGoal(char* goalsfilename, char* goal);
 
 int main (int argc, char** argv)
 {
@@ -65,17 +67,25 @@ int main (int argc, char** argv)
 	{
 		printf("\nPrinting all data returned: %d\n", 
 			printAll(tables, LINESINFILE, actualfields));
+
+		double distance[LINESINFILE];
+		int res = getRecordDouble(tables, distance, 3);
+		double sum = 0;
+		int i;
+		for (i = 0; i < LINESINFILE; i++)
+		{
+			sum += distance[i];
+		}
+		printf ("Distance sum: %0.2f km\n", sum);
 	}
 
-	double distance[LINESINFILE];
-	int res = getRecordDouble(tables, distance, 3);
-	double sum = 0;
-	int i;
-	for (i = 0; i < LINESINFILE; i++)
+	if (flag & 0x04)
 	{
-		sum += distance[i];
+		if (showGoals("goals"))
+		{
+			fprintf(stderr, "Couldn't locate file %s\n", "goals");
+		}
 	}
-	printf ("Distance sum: %0.2f km\n", sum);
 
     return 0;
 }
@@ -155,6 +165,29 @@ int printAll(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], int records, i
 		}
 		printf("\n");
 	}
+
+	return 0;
+}
+
+int showGoals(char* goalsfilename)
+{
+	FILE* goalsfile;
+	goalsfile = fopen(goalsfilename, "r");
+	char buffer[50];
+
+	printf("Goals currently in file:\n");
+	while (fgets(buffer, sizeof(buffer), goalsfile) != 0)
+	{
+		printf ("%s\n", buffer);
+	}
+
+	fclose(goalsfile);
+	return 0;
+}
+
+int setGoal(char* goalsfilename, char* goal)
+{
+	
 
 	return 0;
 }
