@@ -23,6 +23,7 @@ int main (int argc, char** argv)
 	int c;                              		// holds options
 	int flag = 0;                   		    // holds selected features
 	int actualfields[LINESINFILE];				// holds actual fields count for record
+	char *additionalArguments;					// holds additional arguments passed in
 
 	// data tables
 	// https://www.youtube.com/watch?v=_j5lhHWkbnQ
@@ -35,20 +36,25 @@ int main (int argc, char** argv)
 	{
 		switch (c)
 		{
+			// show all info
 			case 'a':
 				flag |= 0x01;
 				break;
 
+			// get data from watch
 			case 'd':
 				flag |= 0x02;
 				break;
 
+			// show goals
 			case 'g':
 				flag |= 0x04;
 				break;
 
+			//set new goal
 			case 'n':
 				flag |= 0x08;
+				additionalArguments = optarg; // setting the pointer to additional args 
 				break;
 
 			default:
@@ -84,6 +90,14 @@ int main (int argc, char** argv)
 		if (showGoals("goals"))
 		{
 			fprintf(stderr, "Couldn't locate file %s\n", "goals");
+		}
+	}
+
+	if (flag & 0x08)
+	{
+		if (setGoal("goals", additionalArguments))
+		{
+			fprintf(stderr, "Couldn't set goal(s)\n");
 		}
 	}
 
@@ -175,6 +189,10 @@ int showGoals(char* goalsfilename)
 	goalsfile = fopen(goalsfilename, "r");
 	char buffer[50];
 
+	// make sure file exists
+	if (goalsfile == NULL)
+		return 1;
+
 	printf("Goals currently in file:\n");
 	while (fgets(buffer, sizeof(buffer), goalsfile) != 0)
 	{
@@ -186,8 +204,59 @@ int showGoals(char* goalsfilename)
 }
 
 int setGoal(char* goalsfilename, char* goal)
-{
+{	
+	int goalNr = 0;
+	float dist;
+
+	FILE* goalsfile;
+	goalsfile = fopen(goalsfilename, "a+");
+
+	if (showGoals(goalsfilename))
+	{
+		printf("No goals currently set\n");
+	}
+
+	if (!memcmp(goal, "interactive", 3))
+	{
+		printf("No arguments given as goal, setting in interctive mode\n");
+
+		// get available data points to choose from file?
+		printf("Select which goal you want to set:\nDistance(1), Time(2), Calories(3) ");
+		scanf("%d", &goalNr);
+
+		switch (goalNr)
+		{
+			case 1:
+				printf("Set desired distance: ");
+				scanf("%f", &dist);
+
+				if (dist <= 0)
+					fprintf(stderr, "Cannot set distance to less than 0\n");
+				else
+					fprintf(goalsfile, "Distance - %f\n", dist);
+
+				break;
+
+			case 2:
+				break;
+
+			case 3:
+				break;
+
+			default:
+				fprintf(stderr, "Not a valid option given as goal: %d", goalNr);
+				break;
+		}
+	}
+	else
+	{
+		printf ("%s\n", goal);
+	}
+
 	
 
+	
+
+	fclose(goalsfile);
 	return 0;
 }
