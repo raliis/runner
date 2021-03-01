@@ -17,6 +17,7 @@ int getRecordDouble(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], double 
 int printAll(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], int records, int* rows);
 int showGoals(char* goalsfilename);
 int setGoal(char* goalsfilename, char* goal);
+char* timeFromSeconds(double seconds);
 
 int main (int argc, char** argv)
 {
@@ -24,6 +25,7 @@ int main (int argc, char** argv)
 	int flag = 0;                   		    // holds selected features
 	int actualfields[LINESINFILE];				// holds actual fields count for record
 	char *additionalArguments;					// holds additional arguments passed in
+	int test;
 
 	// data tables
 	// https://www.youtube.com/watch?v=_j5lhHWkbnQ
@@ -59,6 +61,9 @@ int main (int argc, char** argv)
 
 			default:
 				//usage (argv[0]);
+				// currently for testing
+
+				
 				break;
 		}
 	}
@@ -252,11 +257,15 @@ int setGoal(char* goalsfilename, char* goal)
 	{
 		printf ("%s\n", goal);
 	}
-
-	
-
 	
 
 	fclose(goalsfile);
 	return 0;
+}
+
+char* timeFromSeconds(double seconds)
+{
+	// malloc will be used and pointer returned
+
+	
 }
