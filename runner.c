@@ -9,12 +9,11 @@
 // https://www.youtube.com/watch?v=tonwdcHvjVY
 #define LINESINFILE 12		// this will be dynamic in the future
 #define MAXFIELDS 20 		// this will stay static based on data gotten from watch
-#define MAXFIELDLENGTH 100 	// just to make sure, once data is converted to ints it could change
 
-int getAllRecords(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], char* datafilename, int* actualfields);
-int parse(char* line, char* delimiter, char table[MAXFIELDS][MAXFIELDLENGTH], int* actualfields);
-int getRecordDouble(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], double array[LINESINFILE], int field);
-int printAll(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], int records, int* rows);
+int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int* actualfields);
+int parse(char* line, char* delimiter, double table[MAXFIELDS], int* actualfields, int recordnr);
+int getRecordDouble(double tables[LINESINFILE][MAXFIELDS], double array[LINESINFILE], int field);
+int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows);
 int showGoals(char* goalsfilename);
 int setGoal(char* goalsfilename, char* goal);
 char* timeFromSeconds(double seconds);
@@ -29,7 +28,7 @@ int main (int argc, char** argv)
 
 	// data tables
 	// https://www.youtube.com/watch?v=_j5lhHWkbnQ
-	char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH];
+	double tables[LINESINFILE][MAXFIELDS];
 	char* datafile = "data";
 
 	// get parameters
@@ -109,7 +108,7 @@ int main (int argc, char** argv)
     return 0;
 }
 
-int getAllRecords(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], char* datafilename, int* actualfields)
+int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int* actualfields)
 {	
 	/* holds the line nr in file, 
 	same as record number and table number in tables */
@@ -129,7 +128,7 @@ int getAllRecords(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], char* dat
 	while (fgets(buffer, sizeof(buffer), datafile) != 0)
 	{
 		//printf ("Current record: %d", record);
-		if (parse(buffer, ",", tables[record], &actualfields[record]))
+		if (parse(buffer, ",", tables[record], &actualfields[record], record))
 		{
 			fprintf(stderr, "Something went wrong with parse\n");
 			return 2;
@@ -142,14 +141,24 @@ int getAllRecords(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], char* dat
 }
 
 // https://www.daniweb.com/programming/software-development/threads/97843/parsing-a-csv-file-in-c
-int parse(char* line, char* delimiter, char table[MAXFIELDS][MAXFIELDLENGTH], int* fieldcount)
+int parse(char* line, char* delimiter, double table[MAXFIELDS], int* fieldcount, int recordnr)
 {
 	char* tokens = strtok(line, delimiter);
 	int field = 0;
+	double temp;
+	char* remainder;
 
 	while (tokens)
 	{
-		strcpy(table[field], tokens);
+		//strcpy(table[field], tokens);
+		temp = strtod(tokens, &remainder);
+		if (strlen(remainder) != 1)
+		{
+			fprintf(stderr, "Field %d on line %d in data has text in addition to number.\n",
+					field, recordnr);
+		} 
+		table[field] = temp;
+
 		field++;
 		tokens = strtok('\0', delimiter);
 	}
@@ -158,19 +167,19 @@ int parse(char* line, char* delimiter, char table[MAXFIELDS][MAXFIELDLENGTH], in
 	return 0;
 }
 
-int getRecordDouble(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], double array[LINESINFILE], int field)
+int getRecordDouble(double tables[LINESINFILE][MAXFIELDS], double array[LINESINFILE], int field)
 {
 	int i;
 	for (i = 0; i < LINESINFILE; i++)
 	{
-		array[i] = atof(tables[i][field]);
+		array[i] = tables[i][field];
 		//printf("%s\n", tables[i][field]);
 	}
 
 	return 0;
 }
 
-int printAll(char tables[LINESINFILE][MAXFIELDS][MAXFIELDLENGTH], int records, int* rows)
+int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 {
 	int i, j;
 
@@ -267,5 +276,5 @@ char* timeFromSeconds(double seconds)
 {
 	// malloc will be used and pointer returned
 
-	
+
 }
