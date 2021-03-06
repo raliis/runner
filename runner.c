@@ -152,7 +152,7 @@ int parse(char* line, char* delimiter, double table[MAXFIELDS], int* fieldcount,
 	{
 		//strcpy(table[field], tokens);
 		temp = strtod(tokens, &remainder);
-		if (strlen(remainder) != 1)
+		if (strlen(remainder) > 1)
 		{
 			fprintf(stderr, "Field %d on line %d in data has text in addition to number.\n",
 					field, recordnr);
@@ -189,7 +189,10 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 	{
 		for (j = 0; j < rows[i]; j++)
 		{
-			printf("%s ", tables[i][j]);
+			if (tables[i][j] == (int)tables[i][j])
+				printf("%.0lf ", tables[i][j]);
+			else
+				printf("%.2lf ", tables[i][j]);
 		}
 		printf("\n");
 	}
