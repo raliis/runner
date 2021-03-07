@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "util.h"
 #include "usb/runner_hid.h"
@@ -16,7 +17,7 @@ int getRecordDouble(double tables[LINESINFILE][MAXFIELDS], double array[LINESINF
 int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows);
 int showGoals(char* goalsfilename);
 int setGoal(char* goalsfilename, char* goal);
-char* timeFromSeconds(double seconds);
+int printTime(double seconds);
 
 int main (int argc, char** argv)
 {
@@ -150,7 +151,7 @@ int parse(char* line, char* delimiter, double table[MAXFIELDS], int* fieldcount,
 
 	while (tokens)
 	{
-		//strcpy(table[field], tokens);
+		//check if field has any more info in addition to numbers
 		temp = strtod(tokens, &remainder);
 		if (strlen(remainder) > 1)
 		{
@@ -188,11 +189,19 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 	for (i = 0; i < records; i++)
 	{
 		for (j = 0; j < rows[i]; j++)
-		{
-			if (tables[i][j] == (int)tables[i][j])
-				printf("%.0lf ", tables[i][j]);
+		{	
+			// This correctly formats the date and shows an understandable value
+			if (j == 0)
+			{
+				printTime(tables[i][j]);
+			}
 			else
-				printf("%.2lf ", tables[i][j]);
+			{
+				if (tables[i][j] == (int)tables[i][j])
+					printf("%.0lf ", tables[i][j]);
+				else
+					printf("%.2lf ", tables[i][j]);
+			}
 		}
 		printf("\n");
 	}
@@ -275,9 +284,27 @@ int setGoal(char* goalsfilename, char* goal)
 	return 0;
 }
 
-char* timeFromSeconds(double seconds)
+int printTime(double seconds)
 {
-	// malloc will be used and pointer returned
+	size_t maxsize = 50;
+	time_t timestamp = (time_t) seconds;
+	char time[maxsize];
+	char* format;
+	strcpy(format, "%d.%m.%y");
+	
+	// break timestamp down to its parts and local timezone
+	struct tm* local_time = localtime(&timestamp);
 
+	//print time in a desired format
+	if (strftime(time, maxsize, format, local_time))
+	{
+		fprintf(stderr, "Problem with converting time to formatted string.");
+		return 1;
+	}
+	else
+	{
+		printf ("%s\t", time);
+	}
 
+	return 0;
 }
