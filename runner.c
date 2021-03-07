@@ -174,7 +174,6 @@ int getRecordDouble(double tables[LINESINFILE][MAXFIELDS], double array[LINESINF
 	for (i = 0; i < LINESINFILE; i++)
 	{
 		array[i] = tables[i][field];
-		//printf("%s\n", tables[i][field]);
 	}
 
 	return 0;
@@ -184,7 +183,7 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 {
 	int i, j;
 
-	printf("date, start time, duration, distance, avg hr, max hr, min hr, cal, fat %, avg pace, max pace, running index, max altitude, ascent, descent, time in zone1, time in zone2, time in zone3, time in zone4,time in zone5");
+	printf("date, start time, duration, distance, avg hr, max hr, min hr, cal, fat %, avg pace, max pace, running index, max altitude, ascent, descent, time in zone1, time in zone2, time in zone3, time in zone4,time in zone5\n");
 
 	for (i = 0; i < records; i++)
 	{
@@ -289,21 +288,22 @@ int printTime(double seconds)
 	size_t maxsize = 50;
 	time_t timestamp = (time_t) seconds;
 	char time[maxsize];
-	char* format;
+	char format[10];
 	strcpy(format, "%d.%m.%y");
 	
 	// break timestamp down to its parts and local timezone
 	struct tm* local_time = localtime(&timestamp);
 
-	//print time in a desired format
-	if (strftime(time, maxsize, format, local_time))
+	// print time in a desired format
+	// returns number of copied characters, when buffer is larger than the size of text, otherwise 0
+	if (!strftime(time, maxsize, format, local_time))
 	{
-		fprintf(stderr, "Problem with converting time to formatted string.");
+		fprintf(stderr, "Problem with converting time to formatted string\n");
 		return 1;
 	}
 	else
 	{
-		printf ("%s\t", time);
+		printf ("%s ", time);
 	}
 
 	return 0;
