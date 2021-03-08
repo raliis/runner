@@ -17,7 +17,8 @@ int getRecordDouble(double tables[LINESINFILE][MAXFIELDS], double array[LINESINF
 int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows);
 int showGoals(char* goalsfilename);
 int setGoal(char* goalsfilename, char* goal);
-int printTime(double seconds);
+char* formatDate(double seconds);
+char* formatTime(double seconds);
 
 int main (int argc, char** argv)
 {
@@ -25,12 +26,13 @@ int main (int argc, char** argv)
 	int flag = 0;                   		    // holds selected features
 	int actualfields[LINESINFILE];				// holds actual fields count for record
 	char *additionalArguments;					// holds additional arguments passed in
-	int test;
 
 	// data tables
 	// https://www.youtube.com/watch?v=_j5lhHWkbnQ
 	double tables[LINESINFILE][MAXFIELDS];
 	char* datafile = "data";
+
+	char* test; // just for testing and holding returned pointer
 
 	// get parameters
     // https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
@@ -62,7 +64,9 @@ int main (int argc, char** argv)
 			default:
 				//usage (argv[0]);
 				// currently for testing
-
+				test = formatTime(30);
+				test = formatTime(70);
+				test = formatTime(3600);
 				
 				break;
 		}
@@ -182,6 +186,7 @@ int getRecordDouble(double tables[LINESINFILE][MAXFIELDS], double array[LINESINF
 int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 {
 	int i, j;
+	char* time;
 
 	printf("date, start time, duration, distance, avg hr, max hr, min hr, cal, fat %, avg pace, max pace, running index, max altitude, ascent, descent, time in zone1, time in zone2, time in zone3, time in zone4,time in zone5\n");
 
@@ -192,7 +197,8 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 			// This correctly formats the date and shows an understandable value
 			if (j == 0)
 			{
-				printTime(tables[i][j]);
+				time = formatDate(tables[i][j]);
+				printf ("%s ", time);
 			}
 			else
 			{
@@ -283,11 +289,14 @@ int setGoal(char* goalsfilename, char* goal)
 	return 0;
 }
 
-int printTime(double seconds)
+char* formatDate(double seconds)
 {
 	size_t maxsize = 50;
 	time_t timestamp = (time_t) seconds;
-	char time[maxsize];
+	
+	char* date;
+	date = (char*) malloc(maxsize);
+
 	char format[10];
 	strcpy(format, "%d.%m.%y");
 	
@@ -296,15 +305,37 @@ int printTime(double seconds)
 
 	// print time in a desired format
 	// returns number of copied characters, when buffer is larger than the size of text, otherwise 0
-	if (!strftime(time, maxsize, format, local_time))
+	if (!strftime(date, maxsize, format, local_time))
 	{
 		fprintf(stderr, "Problem with converting time to formatted string\n");
-		return 1;
+		return NULL;
 	}
 	else
 	{
-		printf ("%s ", time);
+		return date;
 	}
+}
 
-	return 0;
+char* formatTime(double seconds)
+{
+	size_t maxsize = 50;
+	int sec = 0;
+	int min = 0;
+	int hours = 0;
+
+	char* time;
+	time = (char*) malloc(maxsize);
+
+	min = seconds / 60;
+	sec = seconds - ((int)min * 60);
+	if (min > 59)
+	{
+		hours = min / 60;
+		min = min % 60;
+	} 
+	printf("%d:%d:%d - %d\n", hours, min, sec, seconds);
+
+	// turn calculated numbers into a string and return the pointer to it.
+
+	return time;
 }
