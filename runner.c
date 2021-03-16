@@ -64,10 +64,11 @@ int main (int argc, char** argv)
 			default:
 				//usage (argv[0]);
 				// currently for testing
-				test = formatTime(30);
+				
+				/*test = formatTime(30);
 				test = formatTime(70);
 				test = formatTime(3600);
-				
+				*/
 				break;
 		}
 	}
@@ -199,6 +200,11 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 			{
 				time = formatDate(tables[i][j]);
 				printf ("%s ", time);
+			}
+			else if (j <= 2 || j >= 15)
+			{
+				time = formatTime(tables[i][j]);
+				printf("%s ", time);
 			}
 			else
 			{
@@ -333,9 +339,24 @@ char* formatTime(double seconds)
 		hours = min / 60;
 		min = min % 60;
 	} 
-	printf("%d:%d:%d - %d\n", hours, min, sec, seconds);
-
+	
 	// turn calculated numbers into a string and return the pointer to it.
+	if (hours == 0 && sec > 0)
+	{
+		sprintf(time, "%d:%02d", min, sec);
+	}
+	else if (hours > 0 && sec == 0)
+	{
+		sprintf(time, "%d:%02d", hours, min);
+	}
+	else if (seconds == 0)
+	{
+		sprintf(time, "0");
+	}
+	else
+	{
+		sprintf(time, "%d:%02d:%02d", hours, min, sec);
+	}
 
 	return time;
 }
