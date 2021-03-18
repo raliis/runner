@@ -19,6 +19,7 @@ int showGoals(char* goalsfilename);
 int setGoal(char* goalsfilename, char* goal);
 char* formatDate(double seconds);
 char* formatTime(double seconds);
+int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS]);
 
 int main (int argc, char** argv)
 {
@@ -290,7 +291,6 @@ int setGoal(char* goalsfilename, char* goal)
 		printf ("%s\n", goal);
 	}
 	
-
 	fclose(goalsfile);
 	return 0;
 }
@@ -359,4 +359,56 @@ char* formatTime(double seconds)
 	}
 
 	return time;
+}
+
+// UNTESTED
+int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
+{
+	// this will make an array of the indexes of the lines that are recorded this month
+	size_t maxsize = 50;
+	time_t todayTimestamp;
+	time_t firstDayTimestamp;
+	int i = 0;
+	int* result = (int*) malloc(LINESINFILE * sizeof(int));
+
+	struct tm* today;
+	struct tm* firstDay;
+
+	// todays timestamp
+  	time ( &todayTimestamp );
+	today = localtime(&todayTimestamp);
+
+	// array of days in months, maybe ill need it
+	int daysInMonth[12] = {31, (firstDay->tm_year % 4 != 0) ? 28 : 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+	// set parameters for first day of current month
+	firstDay->tm_year = today->tm_year;
+	firstDay->tm_mon = today->tm_mon;
+	firstDay->tm_mday = 1;
+	firstDay->tm_hour = 0;
+	firstDay->tm_min = 0;
+	firstDay->tm_sec = 0;
+	// roughly dailyght savings time
+	firstDay->tm_isdst = (today->tm_year > 3 && today->tm_year < 11) ? 1 : -1;
+
+	firstDayTimestamp = mktime(firstDay);
+	if( firstDayTimestamp == -1 ) 
+	{
+		fprintf(stderr, "Error: unable to make time using mktime\n");
+	} 
+	else 
+	{
+		// see which data is from this month
+		for (; i < LINESINFILE; i++)
+		{
+			if (tables[i][0] > todayTimestamp && tables[i][0] < firstDayTimestamp)
+			{
+				printf("Data on line %d is in this month\n", i);
+			}
+		}
+	}
+
+	// IN TESTING PHASE TO SEE IF EVERYTHING WORKS
+
+	return result;
 }
