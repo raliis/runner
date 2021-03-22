@@ -8,7 +8,7 @@
 #include "usb/runner_hid.h"
 
 // https://www.youtube.com/watch?v=tonwdcHvjVY
-#define LINESINFILE 12		// this will be dynamic in the future
+#define LINESINFILE 14		// this will be dynamic in the future
 #define MAXFIELDS 20 		// this will stay static based on data gotten from watch
 
 int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int* actualfields);
@@ -27,6 +27,9 @@ int main (int argc, char** argv)
 	int flag = 0;                   		    // holds selected features
 	int actualfields[LINESINFILE];				// holds actual fields count for record
 	char *additionalArguments;					// holds additional arguments passed in
+	
+	int *testarr;
+	int testint;
 
 	// data tables
 	// https://www.youtube.com/watch?v=_j5lhHWkbnQ
@@ -37,7 +40,7 @@ int main (int argc, char** argv)
 
 	// get parameters
     // https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
-	while ((c = getopt(argc, argv, "adgn:")) != -1) 
+	while ((c = getopt(argc, argv, "adgn:t")) != -1) 
 	{
 		switch (c)
 		{
@@ -61,11 +64,15 @@ int main (int argc, char** argv)
 				flag |= 0x08;
 				additionalArguments = optarg; // setting the pointer to additional args 
 				break;
+			
+			case 't': //purely for testing
+				flag |= 0x16;
+				testint = getAllRecords(tables, datafile, actualfields);
+				testarr = dataThisMonth(tables);
 
 			default:
 				//usage (argv[0]);
 				// currently for testing
-				
 				/*test = formatTime(30);
 				test = formatTime(70);
 				test = formatTime(3600);
@@ -376,10 +383,13 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 
 	// todays timestamp
   	time ( &todayTimestamp );
+	
+	// init both so that firstDay could be modified
 	today = localtime(&todayTimestamp);
+	firstDay = gmtime(&todayTimestamp);
 
 	// array of days in months, maybe ill need it
-	int daysInMonth[12] = {31, (firstDay->tm_year % 4 != 0) ? 28 : 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+	int daysInMonth[12] = {31, (today->tm_year % 4 != 0) ? 28 : 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 	// set parameters for first day of current month
 	firstDay->tm_year = today->tm_year;
@@ -401,7 +411,7 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 		// see which data is from this month
 		for (; i < LINESINFILE; i++)
 		{
-			if (tables[i][0] > todayTimestamp && tables[i][0] < firstDayTimestamp)
+			if (tables[i][0] < todayTimestamp && tables[i][0] > firstDayTimestamp)
 			{
 				printf("Data on line %d is in this month\n", i);
 			}
