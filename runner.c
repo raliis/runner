@@ -368,7 +368,6 @@ char* formatTime(double seconds)
 	return time;
 }
 
-// UNTESTED
 int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 {
 	// this will make an array of the indexes of the lines that are recorded this month
@@ -376,6 +375,7 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 	time_t todayTimestamp;
 	time_t firstDayTimestamp;
 	int i = 0;
+	int j = 0;						// holds amount of items in the returned array
 	int* result = (int*) malloc(LINESINFILE * sizeof(int));
 
 	struct tm* today;
@@ -414,6 +414,8 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 			if (tables[i][0] < todayTimestamp && tables[i][0] > firstDayTimestamp)
 			{
 				printf("Data on line %d is in this month\n", i);
+				result[j] = i;
+				j++;
 			}
 		}
 	}
