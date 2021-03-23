@@ -8,18 +8,20 @@
 #include "usb/runner_hid.h"
 
 // https://www.youtube.com/watch?v=tonwdcHvjVY
-#define LINESINFILE 14		// this will be dynamic in the future
 #define MAXFIELDS 20 		// this will stay static based on data gotten from watch
+int LINESINFILE;			// global variable for number of lines in data 
 
 int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int* actualfields);
 int parse(char* line, char* delimiter, double table[MAXFIELDS], int* actualfields, int recordnr);
-int getRecordDouble(double tables[LINESINFILE][MAXFIELDS], double array[LINESINFILE], int field);
+double getRecordSum(double tables[LINESINFILE][MAXFIELDS], int* records, int field);
+double* getRecordsThisMonth(double tables[LINESINFILE][MAXFIELDS], int* records, int field);
 int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows);
 int showGoals(char* goalsfilename);
 int setGoal(char* goalsfilename, char* goal);
 char* formatDate(double seconds);
 char* formatTime(double seconds);
 int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS]);
+int readLines(char* filename);
 
 int main (int argc, char** argv)
 {
@@ -27,6 +29,7 @@ int main (int argc, char** argv)
 	int flag = 0;                   		    // holds selected features
 	int actualfields[LINESINFILE];				// holds actual fields count for record
 	char *additionalArguments;					// holds additional arguments passed in
+	LINESINFILE = readLines("data");			// count lines in data file
 	
 	int *testarr;
 	int testint;
@@ -40,7 +43,7 @@ int main (int argc, char** argv)
 
 	// get parameters
     // https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
-	while ((c = getopt(argc, argv, "adgn:t")) != -1) 
+	while((c = getopt(argc, argv, "adgnt")) != -1) 
 	{
 		switch (c)
 		{
@@ -62,13 +65,21 @@ int main (int argc, char** argv)
 			//set new goal
 			case 'n':
 				flag |= 0x08;
-				additionalArguments = optarg; // setting the pointer to additional args 
+
+				if(argc == 2)
+					additionalArguments = NULL;
+				else if(argc == 4)
+					printf("setting now\n");
+				//printf("Additional: %s\n", argv[2]);
+				//additionalArguments = (argv[2] + 1); // setting the pointer to additional args 
+
 				break;
 			
 			case 't': //purely for testing
 				flag |= 0x16;
 				testint = getAllRecords(tables, datafile, actualfields);
 				testarr = dataThisMonth(tables);
+				break;
 
 			default:
 				//usage (argv[0]);
@@ -81,45 +92,64 @@ int main (int argc, char** argv)
 		}
 	}
 
-	if (getAllRecords(tables, datafile, actualfields))
+	if(getAllRecords(tables, datafile, actualfields))
 	{
 		fprintf(stderr, "Reading from file failed, exiting\n");
 		return 1;
 	}
 
-	if (flag & 0x01)
+	if(flag & 0x01)
 	{
 		printf("\nPrinting all data returned: %d\n", 
 			printAll(tables, LINESINFILE, actualfields));
 
 		double distance[LINESINFILE];
-		int res = getRecordDouble(tables, distance, 3);
+		/*int res = getRecordDouble(tables, distance, 3);
 		double sum = 0;
 		int i;
 		for (i = 0; i < LINESINFILE; i++)
 		{
 			sum += distance[i];
 		}
-		printf ("Distance sum: %0.2f km\n", sum);
+		printf("Distance sum: %0.2f km\n", sum);*/
 	}
 
-	if (flag & 0x04)
+	if(flag & 0x04)
 	{
-		if (showGoals("goals"))
+		if(showGoals("goals"))
 		{
 			fprintf(stderr, "Couldn't locate file %s\n", "goals");
 		}
 	}
 
-	if (flag & 0x08)
+	if(flag & 0x08)
 	{
-		if (setGoal("goals", additionalArguments))
+		if(setGoal("goals", additionalArguments))
 		{
 			fprintf(stderr, "Couldn't set goal(s)\n");
 		}
 	}
 
     return 0;
+}
+
+int readLines(char* filename)
+{
+	int lines = 0;
+	char c;
+
+	FILE* pfile;
+	pfile = fopen(filename, "r");
+	if(pfile == NULL)
+		fprintf(stderr, "Couldn't open file: %s\n", filename);
+
+	while((c=fgetc(pfile))!=EOF) {
+      if(c == '\n')
+         lines++;
+   	}
+	fclose(pfile);
+
+	return lines;
 }
 
 int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int* actualfields)
@@ -132,7 +162,7 @@ int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int
 	FILE* datafile;
 	datafile = fopen(datafilename, "r");
 
-	if (datafile == NULL)
+	if(datafile == NULL)
 	{
 		fprintf(stderr, "Could not open file: %s\n", datafilename);
 		return 1;
@@ -141,8 +171,8 @@ int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int
 	//https://solarianprogrammer.com/2019/04/03/c-programming-read-file-lines-fgets-getline-implement-portable-getline/
 	while (fgets(buffer, sizeof(buffer), datafile) != 0)
 	{
-		//printf ("Current record: %d", record);
-		if (parse(buffer, ",", tables[record], &actualfields[record], record))
+		//printf("Current record: %d", record);
+		if(parse(buffer, ",", tables[record], &actualfields[record], record))
 		{
 			fprintf(stderr, "Something went wrong with parse\n");
 			return 2;
@@ -166,7 +196,7 @@ int parse(char* line, char* delimiter, double table[MAXFIELDS], int* fieldcount,
 	{
 		//check if field has any more info in addition to numbers
 		temp = strtod(tokens, &remainder);
-		if (strlen(remainder) > 1)
+		if(strlen(remainder) > 1)
 		{
 			fprintf(stderr, "Field %d on line %d in data has text in addition to number.\n",
 					field, recordnr);
@@ -181,15 +211,33 @@ int parse(char* line, char* delimiter, double table[MAXFIELDS], int* fieldcount,
 	return 0;
 }
 
-int getRecordDouble(double tables[LINESINFILE][MAXFIELDS], double array[LINESINFILE], int field)
+double getRecordSum(double tables[LINESINFILE][MAXFIELDS], int* records, int field)
 {
-	int i;
-	for (i = 0; i < LINESINFILE; i++)
+	int lines = sizeof(records)/sizeof(records[0]);
+	double result;
+	int i = 0;
+
+	for(; i < lines; i++)
 	{
-		array[i] = tables[i][field];
+		result += tables[i][field];
 	}
 
-	return 0;
+	return result;
+}
+
+double* getRecordsThisMonth(double tables[LINESINFILE][MAXFIELDS], int* records, int field)
+{
+	int lines = sizeof(records)/sizeof(records[0]);
+	double* result;
+	result = (double*) malloc(sizeof(double) * lines); 
+	int i = 0;
+
+	for(; i < lines; i++)
+	{
+		result[i] = tables[i][field];
+	}
+
+	return result;
 }
 
 int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
@@ -204,19 +252,21 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 		for (j = 0; j < rows[i]; j++)
 		{	
 			// This correctly formats the date and shows an understandable value
-			if (j == 0)
+			if(j == 0)
 			{
 				time = formatDate(tables[i][j]);
-				printf ("%s ", time);
+				printf("%s ", time);
+				free(time);
 			}
-			else if (j <= 2 || j >= 15)
+			else if(j <= 2 || j >= 15)
 			{
 				time = formatTime(tables[i][j]);
 				printf("%s ", time);
+				free(time);
 			}
 			else
 			{
-				if (tables[i][j] == (int)tables[i][j])
+				if(tables[i][j] == (int)tables[i][j])
 					printf("%.0lf ", tables[i][j]);
 				else
 					printf("%.2lf ", tables[i][j]);
@@ -228,21 +278,62 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 	return 0;
 }
 
+// getFieldByName(char* field)
+
 int showGoals(char* goalsfilename)
 {
 	FILE* goalsfile;
 	goalsfile = fopen(goalsfilename, "r");
+	char* tokens;
 	char buffer[50];
 
 	// make sure file exists
-	if (goalsfile == NULL)
+	if(goalsfile == NULL)
 		return 1;
 
 	printf("Goals currently in file:\n");
 	while (fgets(buffer, sizeof(buffer), goalsfile) != 0)
 	{
-		printf ("%s\n", buffer);
+		tokens = strtok(buffer, " ");
+		switch(*tokens)
+		{
+			case 'd':
+				printf("Distance: ");
+				tokens = strtok(NULL, " ");
+				printf("%d km\n", atoi(tokens));
+				break;
+			case 't':
+				printf("Time: ");
+				tokens = strtok(NULL, " ");
+				printf("%s\n", formatTime(atof(tokens)));
+				break;
+			case 'c':
+				printf("Calories: ");
+				break;
+		}
+
+		
 	}
+
+	/* 
+	int field = 0;
+	double temp;
+	char* remainder;
+
+	while (tokens)
+	{
+		//check if field has any more info in addition to numbers
+		temp = strtod(tokens, &remainder);
+		if(strlen(remainder) > 1)
+		{
+			fprintf(stderr, "Field %d on line %d in data has text in addition to number.\n",
+					field, recordnr);
+		} 
+		table[field] = temp;
+
+		field++;
+		tokens = strtok('\0', delimiter);
+	}*/
 
 	fclose(goalsfile);
 	return 0;
@@ -251,41 +342,63 @@ int showGoals(char* goalsfilename)
 int setGoal(char* goalsfilename, char* goal)
 {	
 	int goalNr = 0;
-	float dist;
+	float dist = 0;
+	float time = 0;
+	int cal = 0;
 
 	FILE* goalsfile;
 	goalsfile = fopen(goalsfilename, "a+");
 
-	if (showGoals(goalsfilename))
+	if(showGoals(goalsfilename))
 	{
 		printf("No goals currently set\n");
 	}
 
-	if (!memcmp(goal, "interactive", 3))
+	if(goal == NULL)
 	{
 		printf("No arguments given as goal, setting in interctive mode\n");
 
 		// get available data points to choose from file?
-		printf("Select which goal you want to set:\nDistance(1), Time(2), Calories(3) ");
-		scanf("%d", &goalNr);
+		do
+		{
+			printf("Select which goal you want to set:\nDistance(1), Time(2), Calories(3): ");
+			scanf("%d", &goalNr);
+		}
+		while (goalNr > 3 || goalNr < 1);
 
 		switch (goalNr)
 		{
 			case 1:
-				printf("Set desired distance: ");
+				printf("Set desired distance(km): ");
 				scanf("%f", &dist);
 
-				if (dist <= 0)
-					fprintf(stderr, "Cannot set distance to less than 0\n");
+				if(dist <= 0)
+					fprintf(stderr, "Cannot set distance to less than 1\n");
 				else
-					fprintf(goalsfile, "Distance - %f\n", dist);
+					fprintf(goalsfile, "d %f\n", dist);
 
 				break;
 
 			case 2:
+				printf("Set desired time(h): ");
+				scanf("%f", &time);
+
+				if(time <= 0)
+					fprintf(stderr, "Cannot set time to less than 1s\n");
+				else
+					fprintf(goalsfile, "t %f\n", (time * 3600));
+
 				break;
 
 			case 3:
+				printf("Set desired amount of calories burned: ");
+				scanf("%d", &cal);
+
+				if(cal <= 0)
+					fprintf(stderr, "Cannot set calories to less than 1\n");
+				else
+					fprintf(goalsfile, "c %d\n", cal);
+
 				break;
 
 			default:
@@ -295,7 +408,7 @@ int setGoal(char* goalsfilename, char* goal)
 	}
 	else
 	{
-		printf ("%s\n", goal);
+		printf("%s\n", goal);
 	}
 	
 	fclose(goalsfile);
@@ -318,7 +431,7 @@ char* formatDate(double seconds)
 
 	// print time in a desired format
 	// returns number of copied characters, when buffer is larger than the size of text, otherwise 0
-	if (!strftime(date, maxsize, format, local_time))
+	if(!strftime(date, maxsize, format, local_time))
 	{
 		fprintf(stderr, "Problem with converting time to formatted string\n");
 		return NULL;
@@ -341,22 +454,22 @@ char* formatTime(double seconds)
 
 	min = seconds / 60;
 	sec = seconds - ((int)min * 60);
-	if (min > 59)
+	if(min > 59)
 	{
 		hours = min / 60;
 		min = min % 60;
 	} 
 	
 	// turn calculated numbers into a string and return the pointer to it.
-	if (hours == 0 && sec > 0)
+	if(hours == 0 && sec > 0)
 	{
-		sprintf(time, "%d:%02d", min, sec);
+		sprintf(time, "%dmin, %02dsec", min, sec);
 	}
-	else if (hours > 0 && sec == 0)
+	else if(hours > 0 && sec == 0)
 	{
-		sprintf(time, "%d:%02d", hours, min);
+		sprintf(time, "%dh, %02dmin", hours, min);
 	}
-	else if (seconds == 0)
+	else if(seconds == 0)
 	{
 		sprintf(time, "0");
 	}
@@ -382,7 +495,7 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 	struct tm* firstDay;
 
 	// todays timestamp
-  	time ( &todayTimestamp );
+  	time(&todayTimestamp);
 	
 	// init both so that firstDay could be modified
 	today = localtime(&todayTimestamp);
@@ -411,16 +524,14 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 		// see which data is from this month
 		for (; i < LINESINFILE; i++)
 		{
-			if (tables[i][0] < todayTimestamp && tables[i][0] > firstDayTimestamp)
+			if(tables[i][0] < todayTimestamp && tables[i][0] > firstDayTimestamp)
 			{
-				printf("Data on line %d is in this month\n", i);
+				//printf("Data on line %d is in this month\n", i);
 				result[j] = i;
 				j++;
 			}
 		}
 	}
-
-	// IN TESTING PHASE TO SEE IF EVERYTHING WORKS
 
 	return result;
 }
