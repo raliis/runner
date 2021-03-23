@@ -21,7 +21,7 @@ int setGoal(char* goalsfilename, char* goal);
 char* formatDate(double seconds);
 char* formatTime(double seconds);
 int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS]);
-int readLines(char* filename);
+int countLines(char* filename);
 
 int main (int argc, char** argv)
 {
@@ -29,7 +29,7 @@ int main (int argc, char** argv)
 	int flag = 0;                   		    // holds selected features
 	int actualfields[LINESINFILE];				// holds actual fields count for record
 	char *additionalArguments;					// holds additional arguments passed in
-	LINESINFILE = readLines("data");			// count lines in data file
+	LINESINFILE = countLines("data");			// count lines in data file
 	
 	int *testarr;
 	int testint;
@@ -133,7 +133,7 @@ int main (int argc, char** argv)
     return 0;
 }
 
-int readLines(char* filename)
+int countLines(char* filename)
 {
 	int lines = 0;
 	char c;
