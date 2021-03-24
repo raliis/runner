@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -6,6 +7,12 @@
 
 #include "util.h"
 #include "usb/runner_hid.h"
+
+typedef struct goal
+{
+	char* name;
+	double size;
+}goal;
 
 // https://www.youtube.com/watch?v=tonwdcHvjVY
 #define MAXFIELDS 20 		// this will stay static based on data gotten from watch
@@ -16,8 +23,9 @@ int parse(char* line, char* delimiter, double table[MAXFIELDS], int* actualfield
 double getRecordSum(double tables[LINESINFILE][MAXFIELDS], int* records, int field);
 double* getRecordsThisMonth(double tables[LINESINFILE][MAXFIELDS], int* records, int field);
 int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows);
+char* getFullWord(char* letter);
 int showGoals(char* goalsfilename);
-int setGoal(char* goalsfilename, char* goal);
+int setGoal(char* goalsfilename, goal* newGoal);
 char* formatDate(double seconds);
 char* formatTime(double seconds);
 int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS]);
@@ -40,6 +48,8 @@ int main (int argc, char** argv)
 	char* datafile = "data";
 
 	char* test; // just for testing and holding returned pointer
+
+	goal newGoal = {.size = 0};
 
 	// get parameters
     // https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
@@ -65,14 +75,22 @@ int main (int argc, char** argv)
 			//set new goal
 			case 'n':
 				flag |= 0x08;
+				
+				if(argc > 2)
+				{	// convert to lowercase for easier processing
+					for(int i = 0; argv[2][i]; i++){
+  						argv[2][i] = tolower(argv[2][i]);
+					}
+					newGoal.name = argv[2];
+				}
+				else
+				{
+					newGoal.name = NULL;
+				}
 
-				if(argc == 2)
-					additionalArguments = NULL;
-				else if(argc == 4)
-					printf("setting now\n");
-				//printf("Additional: %s\n", argv[2]);
-				//additionalArguments = (argv[2] + 1); // setting the pointer to additional args 
-
+				if(argc > 3)
+					newGoal.size = atof(argv[3]);
+				
 				break;
 			
 			case 't': //purely for testing
@@ -124,7 +142,7 @@ int main (int argc, char** argv)
 
 	if(flag & 0x08)
 	{
-		if(setGoal("goals", additionalArguments))
+		if(setGoal("goals", &newGoal))
 		{
 			fprintf(stderr, "Couldn't set goal(s)\n");
 		}
@@ -280,6 +298,31 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 
 // getFieldByName(char* field)
 
+char* getFullWord(char* letter)
+{
+	// THIS STRING WILL HAVE TO BE FREED OUTSIDE
+	char* result;
+	switch (*letter)
+	{
+		case 'd':
+			result = (char*) malloc(sizeof(char) * strlen("Distance") + 1);
+			strcpy(result, "Distance");
+			break;
+		case 't':
+			result = (char*) malloc(sizeof(char) * strlen("Time") + 1);
+			strcpy(result, "Time");
+			break;
+		case 'c':
+			result = (char*) malloc(sizeof(char) * strlen("Calories") + 1);
+			strcpy(result, "Calories");
+			break;
+		default:
+			result = NULL;
+			break;
+	}
+	return result;
+}
+
 int showGoals(char* goalsfilename)
 {
 	FILE* goalsfile;
@@ -309,42 +352,21 @@ int showGoals(char* goalsfilename)
 				break;
 			case 'c':
 				printf("Calories: ");
+				tokens = strtok(NULL, " ");
+				printf("%d\n", atoi(tokens));
 				break;
 		}
 
 		
 	}
 
-	/* 
-	int field = 0;
-	double temp;
-	char* remainder;
-
-	while (tokens)
-	{
-		//check if field has any more info in addition to numbers
-		temp = strtod(tokens, &remainder);
-		if(strlen(remainder) > 1)
-		{
-			fprintf(stderr, "Field %d on line %d in data has text in addition to number.\n",
-					field, recordnr);
-		} 
-		table[field] = temp;
-
-		field++;
-		tokens = strtok('\0', delimiter);
-	}*/
-
 	fclose(goalsfile);
 	return 0;
 }
 
-int setGoal(char* goalsfilename, char* goal)
+int setGoal(char* goalsfilename, goal* newGoal)
 {	
 	int goalNr = 0;
-	float dist = 0;
-	float time = 0;
-	int cal = 0;
 
 	FILE* goalsfile;
 	goalsfile = fopen(goalsfilename, "a+");
@@ -354,14 +376,14 @@ int setGoal(char* goalsfilename, char* goal)
 		printf("No goals currently set\n");
 	}
 
-	if(goal == NULL)
+	// Setting name for goal
+	if(newGoal->name == NULL)
 	{
-		printf("No arguments given as goal, setting in interctive mode\n");
-
-		// get available data points to choose from file?
+		//printf("No arguments given, setting in interctive mode\n");
+		newGoal->name = (char*) malloc(sizeof(char) * 2);
 		do
 		{
-			printf("Select which goal you want to set:\nDistance(1), Time(2), Calories(3): ");
+			printf("Enter number for the goal you want to set:\nDistance[1], Time[2], Calories[3]: ");
 			scanf("%d", &goalNr);
 		}
 		while (goalNr > 3 || goalNr < 1);
@@ -369,36 +391,15 @@ int setGoal(char* goalsfilename, char* goal)
 		switch (goalNr)
 		{
 			case 1:
-				printf("Set desired distance(km): ");
-				scanf("%f", &dist);
-
-				if(dist <= 0)
-					fprintf(stderr, "Cannot set distance to less than 1\n");
-				else
-					fprintf(goalsfile, "d %f\n", dist);
-
+				strcpy(newGoal->name, "d");
 				break;
 
 			case 2:
-				printf("Set desired time(h): ");
-				scanf("%f", &time);
-
-				if(time <= 0)
-					fprintf(stderr, "Cannot set time to less than 1s\n");
-				else
-					fprintf(goalsfile, "t %f\n", (time * 3600));
-
+				strcpy(newGoal->name, "t");
 				break;
 
 			case 3:
-				printf("Set desired amount of calories burned: ");
-				scanf("%d", &cal);
-
-				if(cal <= 0)
-					fprintf(stderr, "Cannot set calories to less than 1\n");
-				else
-					fprintf(goalsfile, "c %d\n", cal);
-
+				strcpy(newGoal->name, "c");
 				break;
 
 			default:
@@ -406,10 +407,18 @@ int setGoal(char* goalsfilename, char* goal)
 				break;
 		}
 	}
-	else
+	
+	// Setting size for goal
+	if (newGoal->size <= 0)
 	{
-		printf("%s\n", goal);
+		char* temp = getFullWord(newGoal->name);
+		printf("Set desired goal for %s: ", temp);
+		free(temp);
+		scanf("%lf", &(newGoal->size));
 	}
+
+	// write goal to file
+	fprintf(goalsfile, "%s %.02f\n", newGoal->name, newGoal->size);
 	
 	fclose(goalsfile);
 	return 0;
