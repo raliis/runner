@@ -12,6 +12,7 @@ typedef struct goal
 {
 	char* name;
 	double size;
+	int nrData;
 }goal;
 
 // https://www.youtube.com/watch?v=tonwdcHvjVY
@@ -24,7 +25,7 @@ double getRecordSum(double tables[LINESINFILE][MAXFIELDS], int* records, int fie
 double* getRecordsThisMonth(double tables[LINESINFILE][MAXFIELDS], int* records, int field);
 int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows);
 char* getFullWord(char* letter);
-int showGoals(char* goalsfilename);
+int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* recordsThisMonth);
 int setGoal(char* goalsfilename, goal* newGoal);
 char* formatDate(double seconds);
 char* formatTime(double seconds);
@@ -134,7 +135,8 @@ int main (int argc, char** argv)
 
 	if(flag & 0x04)
 	{
-		if(showGoals("goals"))
+		testarr = dataThisMonth(tables);
+		if(showGoals("goals", tables, testarr))
 		{
 			fprintf(stderr, "Couldn't locate file %s\n", "goals");
 		}
@@ -263,7 +265,10 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 	int i, j;
 	char* time;
 
-	printf("date, start time, duration, distance, avg hr, max hr, min hr, cal, fat %, avg pace, max pace, running index, max altitude, ascent, descent, time in zone1, time in zone2, time in zone3, time in zone4,time in zone5\n");
+	printf("|   date   |  start   | duration | distance|  avg hr |  max hr |  min hr | calories|   fat % | avg pace| max pace|"
+	  "  index  | max alt |  ascent | descent |   zone1  |   zone2  |   zone3  |   zone4  |   zone5  |\n"
+	  "------------------------------------------------------------------------------------------------------------------------"
+	  "-----------------------------------------------------------------------------------------  ");
 
 	for (i = 0; i < records; i++)
 	{
@@ -273,21 +278,21 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 			if(j == 0)
 			{
 				time = formatDate(tables[i][j]);
-				printf("%s ", time);
+				printf("|%9s | ", time);
 				free(time);
 			}
 			else if(j <= 2 || j >= 15)
 			{
 				time = formatTime(tables[i][j]);
-				printf("%s ", time);
+				printf("%8s | ", time);
 				free(time);
 			}
 			else
 			{
 				if(tables[i][j] == (int)tables[i][j])
-					printf("%.0lf ", tables[i][j]);
+					printf("%7.0lf | ", tables[i][j]);
 				else
-					printf("%.2lf ", tables[i][j]);
+					printf("%7.2lf | ", tables[i][j]);
 			}
 		}
 		printf("\n");
@@ -323,42 +328,65 @@ char* getFullWord(char* letter)
 	return result;
 }
 
-int showGoals(char* goalsfilename)
+int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* recordsThisMonth)
 {
 	FILE* goalsfile;
 	goalsfile = fopen(goalsfilename, "r");
 	char* tokens;
 	char buffer[50];
+	goal dist = { .name = NULL, .size = 0, .nrData = 3 };
+	goal time = { .name = NULL, .size = 0, .nrData = 2 };
+	goal cal = { .name = NULL, .size = 0, .nrData = 7 };
+	int i = 0;
+	int countOfRecords = sizeof(recordsThisMonth) / sizeof(int);
 
 	// make sure file exists
 	if(goalsfile == NULL)
 		return 1;
 
-	printf("Goals currently in file:\n");
+	//printf("Goals currently in file:\n");
 	while (fgets(buffer, sizeof(buffer), goalsfile) != 0)
 	{
 		tokens = strtok(buffer, " ");
 		switch(*tokens)
 		{
 			case 'd':
-				printf("Distance: ");
+				dist.name = (char*) malloc(sizeof(char) * 2);
+				strcpy(dist.name, tokens);
 				tokens = strtok(NULL, " ");
-				printf("%d km\n", atoi(tokens));
+				dist.size = atof(tokens);
 				break;
 			case 't':
-				printf("Time: ");
+				time.name = (char*) malloc(sizeof(char) * 2);
+				strcpy(time.name, tokens);
 				tokens = strtok(NULL, " ");
-				printf("%s\n", formatTime(atof(tokens)));
+				time.size = atof(tokens);
+				//printf("%s\n", formatTime());
 				break;
 			case 'c':
-				printf("Calories: ");
+				cal.name = (char*) malloc(sizeof(char) * 2);
+				strcpy(cal.name, tokens);
 				tokens = strtok(NULL, " ");
-				printf("%d\n", atoi(tokens));
+				cal.size = atof(tokens);
 				break;
 		}
-
-		
 	}
+
+	// loop and sum all points this month
+	for(; i < countOfRecords - 1; i++)
+	{
+		printf("%d %f - %s - %d\n", i, dist.size, dist.name, dist.nrData);
+		printf("%d - %d\n", recordsThisMonth[i], countOfRecords);
+		//dist.size += tables[recordsThisMonth[i]][dist.nrData];
+	}
+	printf("distance total this month: %f\n", dist.size);
+
+	// print calculated values 
+	//printf()
+
+	free(dist.name);
+	//free(time.name);
+	//free(cal.name);
 
 	fclose(goalsfile);
 	return 0;
@@ -371,10 +399,10 @@ int setGoal(char* goalsfilename, goal* newGoal)
 	FILE* goalsfile;
 	goalsfile = fopen(goalsfilename, "a+");
 
-	if(showGoals(goalsfilename))
+	/*if(showGoals(goalsfilename))
 	{
 		printf("No goals currently set\n");
-	}
+	}*/
 
 	// Setting name for goal
 	if(newGoal->name == NULL)
@@ -472,11 +500,11 @@ char* formatTime(double seconds)
 	// turn calculated numbers into a string and return the pointer to it.
 	if(hours == 0 && sec > 0)
 	{
-		sprintf(time, "%dmin, %02dsec", min, sec);
+		sprintf(time, "%d:%02d", min, sec);
 	}
 	else if(hours > 0 && sec == 0)
 	{
-		sprintf(time, "%dh, %02dmin", hours, min);
+		sprintf(time, "%d:%02d:00", hours, min);
 	}
 	else if(seconds == 0)
 	{
@@ -535,10 +563,12 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 		{
 			if(tables[i][0] < todayTimestamp && tables[i][0] > firstDayTimestamp)
 			{
-				//printf("Data on line %d is in this month\n", i);
+				printf("Data on line %d is in this month\n", i);
 				result[j] = i;
 				j++;
 			}
+			else
+				printf("Data on line %d is not in this month\n", i);
 		}
 	}
 
