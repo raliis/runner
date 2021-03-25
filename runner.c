@@ -29,6 +29,7 @@ int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* r
 int setGoal(char* goalsfilename, goal* newGoal);
 char* formatDate(double seconds);
 char* formatTime(double seconds);
+void printMonthInfo();
 int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS]);
 int countLines(char* filename);
 
@@ -310,12 +311,12 @@ char* getFullWord(char* letter)
 	switch (*letter)
 	{
 		case 'd':
-			result = (char*) malloc(sizeof(char) * strlen("Distance") + 1);
-			strcpy(result, "Distance");
+			result = (char*) malloc(sizeof(char) * strlen("Distance(km)") + 1);
+			strcpy(result, "Distance(km)");
 			break;
 		case 't':
-			result = (char*) malloc(sizeof(char) * strlen("Time") + 1);
-			strcpy(result, "Time");
+			result = (char*) malloc(sizeof(char) * strlen("Time(h)") + 1);
+			strcpy(result, "Time(h)");
 			break;
 		case 'c':
 			result = (char*) malloc(sizeof(char) * strlen("Calories") + 1);
@@ -337,14 +338,15 @@ int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* r
 	goal dist = { .name = NULL, .size = 0, .nrData = 3 };
 	goal time = { .name = NULL, .size = 0, .nrData = 2 };
 	goal cal = { .name = NULL, .size = 0, .nrData = 7 };
+	float distanceTotal = 0;
+	float timeTotal = 0;
+	float caloriesTotal = 0;
 	int i = 0;
-	int countOfRecords = sizeof(recordsThisMonth) / sizeof(int);
 
 	// make sure file exists
 	if(goalsfile == NULL)
 		return 1;
 
-	//printf("Goals currently in file:\n");
 	while (fgets(buffer, sizeof(buffer), goalsfile) != 0)
 	{
 		tokens = strtok(buffer, " ");
@@ -372,21 +374,50 @@ int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* r
 		}
 	}
 
-	// loop and sum all points this month
-	for(; i < countOfRecords - 1; i++)
+	// print only goals if no data from this month
+	if(recordsThisMonth != NULL)
 	{
-		printf("%d %f - %s - %d\n", i, dist.size, dist.name, dist.nrData);
-		printf("%d - %d\n", recordsThisMonth[i], countOfRecords);
-		//dist.size += tables[recordsThisMonth[i]][dist.nrData];
+		// loop and sum all points this month
+		for(; i < recordsThisMonth[0]; i++)
+		{
+			distanceTotal += tables[recordsThisMonth[i]][dist.nrData];
+			timeTotal += tables[recordsThisMonth[i]][time.nrData];
+			caloriesTotal += tables[recordsThisMonth[i]][cal.nrData];
+		}
 	}
-	printf("distance total this month: %f\n", dist.size);
 
-	// print calculated values 
+	// printing header for table
+	printf("|----------------------------------------------|\n|   Goal   |    size    |    done    | %% done  |\n|==============================================|\n");
+
+	if(dist.size > 0)
+	{
+		printf("| Distance | %8.02fkm | %8.02fkm | %6.0f% |\n", dist.size, distanceTotal, ((distanceTotal)/dist.size)*100);
+		printf("|----------------------------------------------|\n");
+		//printf("Distance goal: %.02fkm, of which %.02fkm(%.0f%) done.\n", dist.size, distanceTotal, ((distanceTotal)/dist.size)*100);
+	}
+	
+	if(time.size > 0)
+	{
+		printf("|   Time   |  %8s  |  %8s  | %6.0f% |\n", formatTime(time.size), formatTime(timeTotal), ((timeTotal)/time.size)*100);
+		printf("|----------------------------------------------|\n");
+		//printf("Time goal: %s, of which %s(%.0f%) done.\n", formatTime(time.size), formatTime(timeTotal), ((timeTotal)/time.size)*100);
+	}
+
+	if(cal.size > 0)
+	{
+		printf("| Calories | %7.02fcal | %7.02fcal | %6.0f% |\n", cal.size, caloriesTotal, ((caloriesTotal)/cal.size)*100);
+		printf("|----------------------------------------------|\n");
+		//printf("Calories goal: %.0fcal, of which %.0fcal(%.0f%) done.\n", cal.size, caloriesTotal, ((caloriesTotal)/cal.size)*100);
+	}
+	
+	printMonthInfo();
+
+	// print days left
 	//printf()
 
 	free(dist.name);
-	//free(time.name);
-	//free(cal.name);
+	free(time.name);
+	free(cal.name);
 
 	fclose(goalsfile);
 	return 0;
@@ -398,11 +429,6 @@ int setGoal(char* goalsfilename, goal* newGoal)
 
 	FILE* goalsfile;
 	goalsfile = fopen(goalsfilename, "a+");
-
-	/*if(showGoals(goalsfilename))
-	{
-		printf("No goals currently set\n");
-	}*/
 
 	// Setting name for goal
 	if(newGoal->name == NULL)
@@ -445,9 +471,9 @@ int setGoal(char* goalsfilename, goal* newGoal)
 		scanf("%lf", &(newGoal->size));
 	}
 
-	// write goal to file
-	fprintf(goalsfile, "%s %.02f\n", newGoal->name, newGoal->size);
-	
+	// write goal to file, time needs calculation
+	fprintf(goalsfile, "%s %.02f\n", newGoal->name, newGoal->size*(strcmp(newGoal->name, "t") ? 1 : 3600));
+
 	fclose(goalsfile);
 	return 0;
 }
@@ -518,6 +544,31 @@ char* formatTime(double seconds)
 	return time;
 }
 
+void printMonthInfo()
+{
+	size_t maxsize = 11;
+	char date[maxsize];
+ 	time_t todayTimestamp;
+	struct tm* today;
+
+	time(&todayTimestamp);
+	today = localtime(&todayTimestamp);
+
+	// array of days in months, maybe ill need it
+	int daysInMonth[12] = {31, (today->tm_year % 4 != 0) ? 28 : 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+	char format[10];
+	strcpy(format, "%B %Y");
+
+	if(!strftime(date, maxsize, format, today))
+	{
+		fprintf(stderr, "Problem with converting time to formatted string\n");
+	}
+
+	float daysLeft = daysInMonth[today->tm_mon] - today->tm_mday;
+	printf("\n%s, %.0f days left(%.0f%% done)\n", date, daysLeft, (today->tm_mday / (float)daysInMonth[today->tm_mon])*100);
+}
+
 int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 {
 	// this will make an array of the indexes of the lines that are recorded this month
@@ -526,7 +577,8 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 	time_t firstDayTimestamp;
 	int i = 0;
 	int j = 0;						// holds amount of items in the returned array
-	int* result = (int*) malloc(LINESINFILE * sizeof(int));
+	int temp[LINESINFILE];
+	int* result = NULL;
 
 	struct tm* today;
 	struct tm* firstDay;
@@ -537,9 +589,6 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 	// init both so that firstDay could be modified
 	today = localtime(&todayTimestamp);
 	firstDay = gmtime(&todayTimestamp);
-
-	// array of days in months, maybe ill need it
-	int daysInMonth[12] = {31, (today->tm_year % 4 != 0) ? 28 : 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 	// set parameters for first day of current month
 	firstDay->tm_year = today->tm_year;
@@ -563,14 +612,29 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 		{
 			if(tables[i][0] < todayTimestamp && tables[i][0] > firstDayTimestamp)
 			{
-				printf("Data on line %d is in this month\n", i);
-				result[j] = i;
+				//printf("Data on line %d is in this month\n", i);
+				temp[j] = i;
 				j++;
 			}
-			else
-				printf("Data on line %d is not in this month\n", i);
 		}
 	}
+
+	if (j > 0)
+	{
+		result = (int*) malloc((j+1) * sizeof(int));
+		result[0] = j; // storing the element count as first element so it can be read in another function easily
+		for (i = 1; i < j+1; i++)
+		{
+			result[i] = temp[i-1];
+		}
+	}
+	else
+	{
+		return NULL;
+	}
+
+	//for (i=0; i<j+1; i++)
+	//	printf("element %d: %d\n", i, result[i]);
 
 	return result;
 }
