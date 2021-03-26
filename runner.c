@@ -472,7 +472,7 @@ int setGoal(char* goalsfilename, goal* newGoal)
 	}
 
 	// write goal to file, time needs calculation
-	fprintf(goalsfile, "%s %.02f\n", newGoal->name, newGoal->size*(strcmp(newGoal->name, "t") ? 1 : 3600));
+	fprintf(goalsfile, "%s %.02f\n", newGoal->name, strcmp(newGoal->name, "t") ? newGoal->size * 3600 : newGoal->size);
 
 	fclose(goalsfile);
 	return 0;
