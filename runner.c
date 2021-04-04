@@ -19,45 +19,60 @@ typedef struct goal
 #define MAXFIELDS 20 		// this will stay static based on data gotten from watch
 int LINESINFILE;			// global variable for number of lines in data 
 
-int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int* actualfields);
-int parse(char* line, char* delimiter, double table[MAXFIELDS], int* actualfields, int recordnr);
-//double getRecordSum(double tables[LINESINFILE][MAXFIELDS], int* records, int field);
-//double* getRecordsThisMonth(double tables[LINESINFILE][MAXFIELDS], int* records, int field);
-int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows);
+int getAllRecords(double* tables, char* datafilename, int* actualfields);
+int parse(char* line, char* delimiter, double* table, int* actualfields, int recordnr);
+//double getRecordSum(double* tables, int* records, int field);
+//double* getRecordsThisMonth(double* tables, int* records, int field);
+int printAll(double* tables, int records, int* rows);
 char* getFullWord(char* letter);
-int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* recordsThisMonth);
+int showGoals(char* goalsfilename, double* tables, int* recordsThisMonth);
 int setGoal(char* goalsfilename, goal* newGoal);
 char* formatDate(double seconds);
 char* formatTime(double seconds);
 void printMonthInfo();
-int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS]);
+int* dataThisMonth(double* tables);
 int countLines(char* filename);
 
 int main (int argc, char** argv)
 {
 	int c;                              		// holds options
 	int flag = 0;                   		    // holds selected features
-	int actualfields[LINESINFILE];				// holds actual fields count for record
-	
+
 	char* datafile = (char*) malloc (strlen(getenv("HOME")) + strlen(".config/runner/data"));
 	char* goalsfile = (char*) malloc (strlen(getenv("HOME")) + strlen(".config/runner/goals"));
 	sprintf(datafile, "%s/.config/runner/data", getenv("HOME"));
 	sprintf(goalsfile, "%s/.config/runner/goals", getenv("HOME"));
 
-	LINESINFILE = countLines(datafile);			// count lines in data file
+	// data tables
+	// https://www.youtube.com/watch?v=_j5lhHWkbnQ
+	double* tables = NULL;
+
+	// count lines in data file
+	LINESINFILE = countLines(datafile);										
+
+	if (LINESINFILE > 0)
+		tables = (double*) malloc(LINESINFILE * MAXFIELDS * sizeof(int));
+
+	// holds actual fields count for record
+	int actualfields[(LINESINFILE > 0) ? LINESINFILE : 1];					
 
 	// struct for goals
 	goal newGoal = {.size = 0};
 
 	// get parameters
     // https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
-	while((c = getopt(argc, argv, "adgnt")) != -1) 
+	while((c = getopt(argc, argv, "adgn")) != -1) 
 	{
 		switch (c)
 		{
 			// show all info
 			case 'a':
 				flag |= 0x01;
+				if (tables == NULL)
+				{	
+					fprintf(stderr, "No data present, exiting\n");
+					return 1;
+				}
 				break;
 
 			// get data from watch
@@ -68,12 +83,18 @@ int main (int argc, char** argv)
 			// show goals
 			case 'g':
 				flag |= 0x04;
+				if (tables == NULL)
+				{	
+					fprintf(stderr, "No data present, exiting\n");
+					return 1;
+				}
+				// THIS WILL JUST SHOW THE GOALS WITHOUT SUMS AND %
 				break;
 
 			//set new goal
 			case 'n':
 				flag |= 0x08;
-				
+
 				if(argc > 2)
 				{	// convert to lowercase for easier processing
 					for(int i = 0; argv[2][i]; i++){
@@ -98,21 +119,11 @@ int main (int argc, char** argv)
 		}
 	}
 
-	// data tables
-	// https://www.youtube.com/watch?v=_j5lhHWkbnQ
-	double tables[LINESINFILE][MAXFIELDS];
-
 	if(flag & 0x01)
 	{
 		if(getAllRecords(tables, datafile, actualfields))
 		{
 			fprintf(stderr, "Reading from file failed, exiting\n");
-			return 1;
-		}
-
-		if (LINESINFILE <= 0)
-		{	
-			fprintf(stderr, "No data present, exiting");
 			return 1;
 		}
 
@@ -128,37 +139,30 @@ int main (int argc, char** argv)
 			return 1;
 		}
 
-		if (LINESINFILE <= 0)
-		{	
-			fprintf(stderr, "No data present, exiting");
-			return 1;
-		}
-
 		if(showGoals(goalsfile, tables, dataThisMonth(tables)))
 		{
-			fprintf(stderr, "Couldn't locate file %s\n", goalsfile);
+			//errors handled inside function
+			return 1;
 		}
 	}
 
 	if(flag & 0x08)
 	{
-		if(getAllRecords(tables, datafile, actualfields))
+		/*if(getAllRecords(tables, datafile, actualfields))
 		{
 			fprintf(stderr, "Reading from file failed, exiting\n");
 			return 1;
-		}
-
-		if (LINESINFILE <= 0)
-		{	
-			fprintf(stderr, "No data present, exiting");
-			return 1;
-		}
+		}*/
 
 		if(setGoal(goalsfile, &newGoal))
 		{
 			fprintf(stderr, "Couldn't set goal(s)\n");
 		}
 	}
+
+	/*free(tables);
+	free(datafile);
+	free(goalsfile);*/
 
     return 0;
 }
@@ -185,7 +189,7 @@ int countLines(char* filename)
 	return lines;
 }
 
-int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int* actualfields)
+int getAllRecords(double* tables, char* datafilename, int* actualfields)
 {	
 	/* holds the line nr in file, 
 	same as record number and table number in tables */
@@ -200,25 +204,30 @@ int getAllRecords(double tables[LINESINFILE][MAXFIELDS], char* datafilename, int
 		fprintf(stderr, "Could not open file: %s\n", datafilename);
 		return 1;
 	}
+	
+	if (tables == NULL)
+	{
+		fprintf(stderr, "No data in file: %s\n", datafilename);
+		return 1;
+	}
 
 	//https://solarianprogrammer.com/2019/04/03/c-programming-read-file-lines-fgets-getline-implement-portable-getline/
 	while (fgets(buffer, sizeof(buffer), datafile) != 0)
 	{
-		//printf("Current record: %d", record);
-		if(parse(buffer, ",", tables[record], &actualfields[record], record))
+		if(parse(buffer, ",", (tables + (record * MAXFIELDS)), actualfields, record))
 		{
 			fprintf(stderr, "Something went wrong with parse\n");
 			return 2;
 		}
 		record++;
 	}
-
-	fclose(datafile);
+	
+	//fclose(datafile);
 	return 0;
 }
 
 // https://www.daniweb.com/programming/software-development/threads/97843/parsing-a-csv-file-in-c
-int parse(char* line, char* delimiter, double table[MAXFIELDS], int* fieldcount, int recordnr)
+int parse(char* line, char* delimiter, double* table, int* fieldcount, int recordnr)
 {
 	char* tokens = strtok(line, delimiter);
 	int field = 0;
@@ -239,12 +248,12 @@ int parse(char* line, char* delimiter, double table[MAXFIELDS], int* fieldcount,
 		field++;
 		tokens = strtok('\0', delimiter);
 	}
-	*fieldcount = field;
+	fieldcount[recordnr] = field;
 
 	return 0;
 }
 
-/*double getRecordSum(double tables[LINESINFILE][MAXFIELDS], int* records, int field)
+/*double getRecordSum(double* tables, int* records, int field)
 {
 	int lines = 0; //sizeof(records)/sizeof(records[0]);
 	int* p = records;
@@ -267,7 +276,7 @@ int parse(char* line, char* delimiter, double table[MAXFIELDS], int* fieldcount,
 	return result;
 }*/
 
-/*double* getRecordsThisMonth(double tables[LINESINFILE][MAXFIELDS], int* records, int field)
+/*double* getRecordsThisMonth(double* tables, int* records, int field)
 {
 	//int lines = sizeof(records)/sizeof(records[0]);
 
@@ -290,8 +299,8 @@ int parse(char* line, char* delimiter, double table[MAXFIELDS], int* fieldcount,
 
 	return result;
 }*/
-
-int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
+			//      (tables, LINESINFILE, actualfields)
+int printAll(double* tables, int records, int* rows)
 {
 	int i, j;
 	char* time;
@@ -303,27 +312,27 @@ int printAll(double tables[LINESINFILE][MAXFIELDS], int records, int* rows)
 
 	for (i = 0; i < records; i++)
 	{
-		for (j = 0; j < rows[i]; j++)
+		for (j = 0; j < MAXFIELDS; j++)
 		{	
 			// This correctly formats the date and shows an understandable value
 			if(j == 0)
 			{
-				time = formatDate(tables[i][j]);
+				time = formatDate(*(tables + i*MAXFIELDS + j));
 				printf("|%9s | ", time);
 				free(time);
 			}
 			else if(j <= 2 || j >= 15)
 			{
-				time = formatTime(tables[i][j]);
+				time = formatTime(*(tables + i*MAXFIELDS + j));
 				printf("%8s | ", time);
 				free(time);
 			}
 			else
 			{
-				if(tables[i][j] == (int)tables[i][j])
-					printf("%7.0lf | ", tables[i][j]);
+				if(*(tables + i*MAXFIELDS + j) == (int) *(tables + i*MAXFIELDS + j))
+					printf("%7.0lf | ", *(tables + i*MAXFIELDS + j));
 				else
-					printf("%7.2lf | ", tables[i][j]);
+					printf("%7.2lf | ", *(tables + i*MAXFIELDS + j));
 			}
 		}
 		printf("\n");
@@ -359,7 +368,7 @@ char* getFullWord(char* letter)
 	return result;
 }
 
-int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* recordsThisMonth)
+int showGoals(char* goalsfilename, double* tables, int* recordsThisMonth)
 {
 	FILE* goalsfile;
 	goalsfile = fopen(goalsfilename, "r");
@@ -371,11 +380,14 @@ int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* r
 	float distanceTotal = 0;
 	float timeTotal = 0;
 	float caloriesTotal = 0;
-	int i = 0;
+	int i;
 
 	// make sure file exists
-	if(goalsfile == NULL || recordsThisMonth == NULL)
+	if(goalsfile == NULL)
+	{
+		fprintf(stderr, "Couldn't open file %s\n", goalsfilename);
 		return 1;
+	}
 
 	while (fgets(buffer, sizeof(buffer), goalsfile) != 0)
 	{
@@ -393,7 +405,6 @@ int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* r
 				strcpy(time.name, tokens);
 				tokens = strtok(NULL, " ");
 				time.size = atof(tokens);
-				//printf("%s\n", formatTime());
 				break;
 			case 'c':
 				cal.name = (char*) malloc(sizeof(char) * 2);
@@ -408,12 +419,16 @@ int showGoals(char* goalsfilename, double tables[LINESINFILE][MAXFIELDS], int* r
 	if(recordsThisMonth != NULL)
 	{
 		// loop and sum all points this month
-		for(; i < recordsThisMonth[0]; i++)
-		{
-			distanceTotal += tables[recordsThisMonth[i]][dist.nrData];
-			timeTotal += tables[recordsThisMonth[i]][time.nrData];
-			caloriesTotal += tables[recordsThisMonth[i]][cal.nrData];
+		for(i = 1; i <= recordsThisMonth[0]; i++)
+		{	
+			distanceTotal += tables[recordsThisMonth[i]*MAXFIELDS + dist.nrData];
+			timeTotal += tables[recordsThisMonth[i]*MAXFIELDS + time.nrData];
+			caloriesTotal += tables[recordsThisMonth[i]*MAXFIELDS + cal.nrData];
 		}
+	}
+	else
+	{
+		fprintf(stderr, "Found no data for this month, only showing goals\n");
 	}
 
 	// printing header for table
@@ -596,12 +611,12 @@ void printMonthInfo()
 	printf("\n%s, %.0f days left(%.0f%% done)\n", date, daysLeft, (today->tm_mday / (float)daysInMonth[today->tm_mon])*100);
 }
 
-int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
+int* dataThisMonth(double* tables)
 {
 	// this will make an array of the indexes of the lines that are recorded this month
 	time_t todayTimestamp;
 	time_t firstDayTimestamp;
-	int i = 0;
+	int i;
 	int j = 0;						// holds amount of items in the returned array
 	int temp[LINESINFILE];
 	int* result = NULL;
@@ -634,9 +649,10 @@ int* dataThisMonth(double tables[LINESINFILE][MAXFIELDS])
 	else 
 	{
 		// see which data is from this month
-		for (; i < LINESINFILE; i++)
+		for (i = 0; i < LINESINFILE; i++)
 		{
-			if(tables[i][0] < todayTimestamp && tables[i][0] > firstDayTimestamp)
+			//printf("%lf %ld %ld\n", tables[i * MAXFIELDS], todayTimestamp, firstDayTimestamp);
+			if(tables[i * MAXFIELDS] < todayTimestamp && tables[i * MAXFIELDS] > firstDayTimestamp)
 			{
 				//printf("Data on line %d is in this month\n", i);
 				temp[j] = i;

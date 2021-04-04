@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 USBFLAGS = -lusb-1.0 -lpthread	
 
 runner: runner.o util.o runner_hid.o hidapi.o parse_data.o
