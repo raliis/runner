@@ -19,6 +19,7 @@ typedef struct goal
 #define MAXFIELDS 20 		// this will stay static based on data gotten from watch
 int LINESINFILE;			// global variable for number of lines in data 
 
+void help();
 int getAllRecords(double* tables, char* datafilename, int* actualfields);
 int parse(char* line, char* delimiter, double* table, int* actualfields, int recordnr);
 //double getRecordSum(double* tables, int* records, int field);
@@ -61,7 +62,7 @@ int main (int argc, char** argv)
 
 	// get parameters
     // https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
-	while((c = getopt(argc, argv, "adgn")) != -1) 
+	while((c = getopt(argc, argv, "adghn")) != -1) 
 	{
 		switch (c)
 		{
@@ -111,14 +112,24 @@ int main (int argc, char** argv)
 					newGoal.size = atof(argv[3]);
 				
 				break;
+
+			case 'h':
+				help();
+				break;
 			
 			default:
-				// STILL NEEDED
-				//usage();
+				help();
 				break;
 		}
 	}
 
+	// special case for without flags
+	if (argc < 2)
+	{
+		help();
+		return 0;
+	}
+		
 	if(flag & 0x01)
 	{
 		if(getAllRecords(tables, datafile, actualfields))
@@ -165,6 +176,22 @@ int main (int argc, char** argv)
 	free(goalsfile);*/
 
     return 0;
+}
+
+void help()
+{
+	printf("Usage:\n\t runner -[adg]\n"
+	 		"\t runner -n [type of goal] [size of goal]\nOptions:\n"
+			"\t-h\t\t show help\n"
+			"\t-a\t\t show all data from file\n"
+			"\t-d\t\t get data from watch - CURRENTLY UNAVAILABLE\n"
+			"\t-g\t\t show set goals\n"
+			"\t-n\t\t add new goal, optional parameters are new goal and size of goal\n");
+
+	printf("Examples:\n\trunner -a\t\t shows all data\n"
+			"\trunner -g\t\t shows goals\n"
+			"\trunner -n\t\t starts interactive goal adding\n"
+			"\trunner -n distance\t asks for size of goal and sets it\n");
 }
 
 int countLines(char* filename)
@@ -468,6 +495,7 @@ int showGoals(char* goalsfilename, double* tables, int* recordsThisMonth)
 int setGoal(char* goalsfilename, goal* newGoal)
 {	
 	int goalNr = 0;
+	char* temp = NULL;
 
 	FILE* goalsfile;
 	goalsfile = fopen(goalsfilename, "a+");
@@ -483,36 +511,49 @@ int setGoal(char* goalsfilename, goal* newGoal)
 			scanf("%d", &goalNr);
 		}
 		while (goalNr > 3 || goalNr < 1);
-
-		switch (goalNr)
-		{
-			case 1:
-				strcpy(newGoal->name, "d");
-				break;
-
-			case 2:
-				strcpy(newGoal->name, "t");
-				break;
-
-			case 3:
-				strcpy(newGoal->name, "c");
-				break;
-
-			default:
-				fprintf(stderr, "Not a valid option given as goal: %d", goalNr);
-				break;
-		}
+	}
+	else
+	{
+		goalNr = newGoal->name[0];
 	}
 	
+	switch (goalNr)
+	{
+		case 1:
+		case 'd':
+			strcpy(newGoal->name, "d");
+			break;
+
+		case 2:
+		case 't':
+			strcpy(newGoal->name, "t");
+			break;
+
+		case 3:
+		case 'c':
+			strcpy(newGoal->name, "c");
+			break;
+
+		default:
+			fprintf(stderr, "Not a valid option given as goal\n", goalNr);
+			break;
+	}
+	
+	
+	temp = getFullWord(newGoal->name);
 	// Setting size for goal
 	if (newGoal->size <= 0)
 	{
-		char* temp = getFullWord(newGoal->name);
 		printf("Set desired goal for %s: ", temp);
-		free(temp);
 		scanf("%lf", &(newGoal->size));
 	}
+	else
+	{
+		printf("Setting goal %s\n", temp);
+	}
+	free(temp);
 
+	
 	// write goal to file, time needs calculation
 	fprintf(goalsfile, "%s %.02f\n", newGoal->name, (strcmp(newGoal->name, "t") ? newGoal->size : newGoal->size * 3600));
 
