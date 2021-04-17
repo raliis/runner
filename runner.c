@@ -536,6 +536,7 @@ int setGoal(char* goalsfilename, goal* newGoal)
 
 		default:
 			fprintf(stderr, "Not a valid option given as goal\n", goalNr);
+			return 1;
 			break;
 	}
 	
