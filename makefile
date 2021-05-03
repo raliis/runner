@@ -1,7 +1,11 @@
 CC = gcc
 #CFLAGS = -Wall -g
+
+# modify this to set install path
+INSTALL_PATH = $(HOME)/.local/bin/
+
 CFLAGS = -g
-USBFLAGS = -lusb-1.0 -lpthread	
+USBFLAGS = -lusb-1.0 -lpthread
 
 runner: runner.o util.o runner_hid.o hidapi.o parse_data.o
 	$(CC) $(CFLAGS) runner.o util.o runner_hid.o hid.o parse_data.o -o runner $(USBFLAGS)
@@ -10,7 +14,7 @@ runner.o: runner.c
 	$(CC) $(CFLAGS) -c runner.c 
 
 util.o: util.c
-	$(CC) $(CFLAGS) -c util.c
+	$(CC) $(CFLAGS) -c util.cs
 
 runner_hid.o: usb/runner_hid.c
 	$(CC) -c usb/runner_hid.c
@@ -26,4 +30,4 @@ clean:
 
 install:
 #mkdir -p $(HOME)/.local/bin/runner
-	cp runner $(HOME)/.local/bin/
+	cp runner $(INSTALL_PATH)
