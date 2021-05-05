@@ -14,7 +14,7 @@ runner.o: runner.c
 	$(CC) $(CFLAGS) -c runner.c 
 
 util.o: util.c
-	$(CC) $(CFLAGS) -c util.cs
+	$(CC) $(CFLAGS) -c util.c
 
 runner_hid.o: usb/runner_hid.c
 	$(CC) -c usb/runner_hid.c
@@ -26,8 +26,7 @@ parse_data.o: usb/parse_data.c
 	$(CC) -c usb/parse_data.c
 
 clean:
-	rm *.o runner usb/runner_hid
+	rm *.o runner $(INSTALL_PATH)/runner
 
 install:
-#mkdir -p $(HOME)/.local/bin/runner
 	cp runner $(INSTALL_PATH)

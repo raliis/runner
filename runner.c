@@ -78,7 +78,8 @@ int main (int argc, char** argv)
 
 			// get data from watch
 			case 'd':
-				flag |= 0x02;
+				//flag |= 0x02;
+				fprintf(stderr, "Currently it is not possible to pull information from the watch, this is still work in progress.\n");
 				break;
 
 			// show goals
