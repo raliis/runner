@@ -6,37 +6,36 @@ USBFLAGS = -lusb-1.0 -lpthread
 INSTALL_PATH = $(HOME)/.local/bin/
 
 SRCDIR = src
+OBJDIR = obj
+
+# https://www.youtube.com/watch?v=CRlqU9XzVr4
+SRCS=$(wildcard $(SRCDIR)/*.c)
+OBJS=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
+
 BINDIR = bin
 BINNAME = runner
 BIN = $(BINDIR)/$(BINNAME)
 
-$(BIN): $(SRCDIR)/*.c
-	$(CC) $(CFLAGS) $(SRCDIR)/*.c -o $(BIN) $(USBFLAGS)
+all: $(BIN)
+
+$(BIN): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@ $(USBFLAGS)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 release: CFLAGS = -O2
 release: $(SRCDIR)/*.c
 	$(CC) $(CFLAGS) $(SRCDIR)/*.c -o $(BIN) $(USBFLAGS)
 
-#$(BIN): runner.o util.o runner_hid.o hidapi.o parse_data.o
-#	$(CC) $(CFLAGS) runner.o util.o runner_hid.o hid.o parse_data.o -o runner $(USBFLAGS)
+#$(OBJDIR)/runner.o: $(SRCDIR)/runner.c
+#	$(CC) $(CFLAGS) -c $< -o $@
 
-#runner.o: runner.c
-#	$(CC) $(CFLAGS) -c runner.c 
+#$(OBJDIR)/util.o: $(SRCDIR)/util.c
+#	$(CC) $(CFLAGS) -c $< -o $@
 #
-#util.o: util.c
-#	$(CC) $(CFLAGS) -c util.c
-#
-#runner_hid.o: usb/runner_hid.c
-#	$(CC) -c usb/runner_hid.c
-#
-#hidapi.o: usb/hid.c
-#	$(CC) -c usb/hid.c
-#
-#parse_data.o: usb/parse_data.c
-#	$(CC) -c usb/parse_data.c
-
 clean:
-	rm $(BINDIR)/*
+	rm $(BINDIR)/* $(OBJDIR)/*
 
 uninstall:
 	rm $(INSTALL_PATH)/$(BINNAME)
